@@ -1,0 +1,13 @@
+Currently, HDFS writes blocks in a random manner.
+For every block, HDFS independently pick three nodes from
+two rack and place the data. 
+
+This lead to one problem: While striping the 3-replicated
+data into erasure coding format, it will cost cross-rack
+traffic, which is scarce in a hadoop cluster.  It is also
+likely to lead to some reliability issues.
+
+We propose a new placement called stripe-oriented placement
+targeting at solving the above problems.
+
+
