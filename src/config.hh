@@ -1,3 +1,6 @@
+#ifndef _CONFIG_HH_
+#define _CONFIG_HH_
+
 #include "tinyxml2.h"
 #include <cstdio>
 #include <cstdlib>
@@ -9,6 +12,9 @@ class config{
         int _nodeNum;
         int _ecN;
         int _ecK;
+
+        int _replicaNum;
+
     public:
         config();
         int getRackNum(){return _rackNum;};
@@ -16,5 +22,9 @@ class config{
         int getNodeNum(){return _nodeNum;};
         int getEcN(){return _ecN;};
         int getEcK(){return _ecK;};
+        int getReplicaNum(){return _replicaNum;};
 };
+
+#endif
+
 

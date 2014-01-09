@@ -19,6 +19,8 @@ config::config(){
             _ecN=atoi(ele->NextSiblingElement("value")->GetText());
         }else if(strcmp(ele->GetText(),"ecK")==0){
             _ecK=atoi(ele->NextSiblingElement("value")->GetText());
+        }else if(strcmp(ele->GetText(),"replicaNum")==0){
+            _replicaNum=atoi(ele->NextSiblingElement("value")->GetText());
         }
     }
     _nodeNum=_rackNum*_nodePerRack;
