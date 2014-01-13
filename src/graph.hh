@@ -5,6 +5,25 @@
 #include <cstdlib>
 #include "config.hh"
 
+class vertexInfo{
+        int _vertexID;
+        int _inDegree;
+        int _outDegree;
+    public:
+        vertexInfo(){_vertexID=-1;_inDegree=0;_outDegree=0;}
+        int setVertexID(int id){_vertexID=id;};
+        int getVertexID(){return _vertexID;};
+        int inDegreeInc(){_inDegree++;return 0;};
+        int inDegreeDec(){_inDegree--;return 0;};
+        int getInDegree(){return _inDegree;};
+        int getOutDegree(){return _outDegree;};
+        int setInDegree(int val){_inDegree=val;return 0;};
+        int setOutDegree(int val){_outDegree=val;return 0;};
+        int noInEdge(){return _inDegree==0?1:0;};
+        int noOutEdge(){return _outDegree==0?1:0;};
+        int isFree(){return noInEdge()|noOutEdge();};
+};
+
 /*
  * We deal with a flow graph here, since the scale of the
  * graph is not large, we use a adjacent graph to represent
@@ -17,8 +36,8 @@ class graph{
         int* _veGraph;
         int* _resGraph;
 
-        int* _nodeInd;
-        int* _rackInd;
+        vertexInfo** _nodeInd;
+        vertexInfo** _rackInd;
 
         int _blockOffset;
         int _nodeOffset;
@@ -37,11 +56,13 @@ class graph{
         int _maxInRack;/* the value of (n-k) */
 
         int graphInit();
+        int getRackPos();
     public:
         graph(config* conf);
         int addEdge(int blockID,int nodeID,int rackID);
         int removeEdge(int blockID,int nodeID,int rackID);
         int maxFlow();
+        int showAdjMat();
 };
 
 #endif

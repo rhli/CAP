@@ -14,13 +14,13 @@ graph::graph(config* conf){
     _nodeOffset=1+_blockNum;
     _rackOffset=_nodeNum+_nodeOffset;
     _sinkOffset=_rackNum+_rackOffset;
-    _nodeInd=(int*)calloc(_nodeNum,sizeof(int));
-    _rackInd=(int*)calloc(_rackNum,sizeof(int));
+    _nodeInd=(vertexInfo**)calloc(_nodeNum,sizeof(vertexInfo*));
+    _rackInd=(vertexInfo**)calloc(_rackNum,sizeof(vertexInfo*));
     for(int i=0;i<_nodeNum;i++){
-        _nodeInd[i]=-1;
+        _nodeInd[i]=new vertexInfo();
     }
     for(int i=0;i<_rackNum;i++){
-        _rackInd[i]=-1;
+        _rackInd[i]=new vertexInfo();
     }
     graphInit();
 }
@@ -33,16 +33,13 @@ int graph::graphInit(){
     for(int i=0;i<_blockNum;i++){
         _veGraph[i+_blockOffset]=1;
     }
+    for(int i=0;i<_nodeNum;i++){
+        _nodeInd[i]=new vertexInfo();
+    }
     for(int i=0;i<_rackNum;i++){
+        _rackInd[i]=new vertexInfo();
         _veGraph[(i+_rackOffset)*_vertexNum+_vertexNum-1]=_maxInRack;
     }
-    for(int i=0;i<_vertexNum;i++){
-        for(int j=0;j<_vertexNum;j++){
-            printf("%2d",_veGraph[i*_vertexNum+j]);
-        }
-        printf("\n");
-    }
-    printf("\n");
     return 0;
 }
 
@@ -52,11 +49,11 @@ int graph::addEdge(int blockID,int nodeID,int rackID){
     int marker=-1;
     int firstFree=-1;
     for(int i=0;i<_nodeNum;i++){
-        if((_nodeInd[i]==-1)&&(firstFree==-1)){
+        if((_nodeInd[i]->isFree()==1)&&(firstFree==-1)){
             firstFree=i;
             continue;
-        }else if(_nodeInd[i]==nodeID){
-            maker=i;
+        }else if(_nodeInd[i]->getVertexID()==nodeID){
+            marker=i;
             break;
         }
     }
@@ -65,16 +62,18 @@ int graph::addEdge(int blockID,int nodeID,int rackID){
     }
     if(marker==-1){
         fprintf(stderr,"graph::addEdge(): some weird thing has happened..\n");
+        return -1;
     }
+    _nodeInd[marker]->setVertexID(nodeID);
     _veGraph[(blockID+_blockOffset)*_vertexNum+marker+_nodeOffset]=1;
 
     int rackMarker=-1;
     int firstRackFree=-1;
     for(int i=0;i<_rackNum;i++){
-        if((_rackInd[i]==-1)&&(firstRackFree==-1)){
+        if((_rackInd[i]->isFree()==1)&&(firstRackFree==-1)){
             firstRackFree=i;
             continue;
-        }else if(_rackInd[i]==rackID){
+        }else if(_rackInd[i]->getVertexID()==rackID){
             rackMarker=i;
             break;
         }
@@ -84,8 +83,10 @@ int graph::addEdge(int blockID,int nodeID,int rackID){
     }
     if(rackMarker==-1){
         fprintf(stderr,"graph::addEdge(): some weird thing has happened..\n");
+        return -1;
     }
-    _veGraph[(marker+_nodeOffset)*_vertexNum+rackMarker+_nodeOffset]=1;
+    _rackInd[rackMarker]->setVertexID(rackID);
+    _veGraph[(marker+_nodeOffset)*_vertexNum+rackMarker+_rackOffset]=1;
     return 0;
 }
 
@@ -96,20 +97,43 @@ int graph::removeEdge(int blockID,int nodeID,int rackID){
     int nodeMarker=-1;
     int rackMarker=-1;
     for(int i=0;i<_nodeNum;i++){
-        if(_nodeInd[i]==nodeID){
+        if(_nodeInd[i]->getVertexID()==nodeID){
             nodeMarker=i;
         }
     }
     for(int i=0;i<_rackNum;i++){
-        if(_rackInd[i]==rackID){
+        if(_rackInd[i]->getVertexID()==rackID){
             rackMarker=i;
         }
     }
-    //TODO: finish this judgement
     if((nodeMarker!=-1)&&
-            (rackMarker==-1)){
+            (rackMarker!=-1)&&
+            (_veGraph[(blockID+_blockOffset)*_vertexNum+nodeMarker+_nodeOffset]==1)){
+        _veGraph[(blockID+_blockOffset)*_vertexNum+nodeMarker+_nodeOffset]=0;
+        _nodeInd[nodeMarker]->inDegreeDec();
+    }else{
         fprintf(stderr,"no such edge!");
     }
+    /* mark node/rack as free vertex if necessary */
+    if(_nodeInd[nodeMarker]->noInEdge()==1){
+        _nodeInd[nodeMarker]->setVertexID(-1);
+        _veGraph[(_nodeOffset+nodeMarker)*_vertexNum+_rackOffset+rackMarker]=0;
+        _rackInd[rackMarker]->inDegreeDec();
+        if(_rackInd[rackMarker]->noInEdge()){
+            _rackInd[rackMarker]->setVertexID(-1);
+        }
+    }
+    return 0;
+}
+
+int graph::showAdjMat(){
+    for(int i=0;i<_vertexNum;i++){
+        for(int j=0;j<_vertexNum;j++){
+            printf("%2d",_veGraph[i*_vertexNum+j]);
+        }
+        printf("\n");
+    }
+    printf("\n");
     return 0;
 }
 
