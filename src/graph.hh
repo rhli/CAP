@@ -3,6 +3,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include "config.hh"
 
 class vertexInfo{
@@ -15,6 +16,8 @@ class vertexInfo{
         int getVertexID(){return _vertexID;};
         int inDegreeInc(){_inDegree++;return 0;};
         int inDegreeDec(){_inDegree--;return 0;};
+        int outDegreeInc(){_outDegree++;return 0;};
+        int outDegreeDec(){_outDegree--;return 0;};
         int getInDegree(){return _inDegree;};
         int getOutDegree(){return _outDegree;};
         int setInDegree(int val){_inDegree=val;return 0;};
@@ -39,6 +42,11 @@ class graph{
         vertexInfo** _nodeInd;
         vertexInfo** _rackInd;
 
+        /* for calculating max flow */
+        int* _vertexColor;
+        int* _path;
+        int _pathLen;
+
         int _blockOffset;
         int _nodeOffset;
         int _rackOffset;
@@ -56,13 +64,17 @@ class graph{
         int _maxInRack;/* the value of (n-k) */
 
         int graphInit();
+        int pathSearch();
         int getRackPos();
+        int dfs(int);
     public:
         graph(config* conf);
         int addEdge(int blockID,int nodeID,int rackID);
         int removeEdge(int blockID,int nodeID,int rackID);
         int maxFlow();
         int showAdjMat();
+        int showResMat();
+        int initResGraph();
 };
 
 #endif
