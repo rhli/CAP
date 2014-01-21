@@ -26,13 +26,21 @@ graph::graph(config* conf){
         _rackInd[i]=new vertexInfo();
     }
     _vertexColor=(int*)calloc(_vertexNum,sizeof(int));
+    _veGraph=NULL;
+    _resGraph=NULL;
+    _backVeGraph=NULL;
+    _backResGraph=NULL;
     graphInit();
 }
 
 int graph::graphInit(){
-    printf("_rackNum: %d\n",_rackNum);
-    printf("_blockNum: %d\n",_blockNum);
-    _veGraph=(int*)calloc(_vertexNum*_vertexNum,sizeof(int));
+    //printf("_rackNum: %d\n",_rackNum);
+    //printf("_blockNum: %d\n",_blockNum);
+    if(_veGraph==NULL){
+        _veGraph=(int*)calloc(_vertexNum*_vertexNum,sizeof(int));
+    }else{
+        memset(_veGraph,0,_vertexNum*_vertexNum*sizeof(int));
+    }
     /* We add two types of edges: source to block (capacity=1) and rack to sink (capacity=n-k) */
     for(int i=0;i<_blockNum;i++){
         _veGraph[i+_blockOffset]=1;
@@ -43,6 +51,22 @@ int graph::graphInit(){
     for(int i=0;i<_rackNum;i++){
         _rackInd[i]=new vertexInfo();
         _veGraph[(i+_rackOffset)*_vertexNum+_vertexNum-1]=_maxInRack;
+    }
+    /* Init residual graph, the two backup matrix */
+    if(_resGraph==NULL){
+        _resGraph=(int*)calloc(_vertexNum*_vertexNum,sizeof(int));
+    }else{
+        memset(_resGraph,0,_vertexNum*_vertexNum*sizeof(int));
+    }
+    if(_backVeGraph==NULL){
+        _backVeGraph=(int*)calloc(_vertexNum*_vertexNum,sizeof(int));
+    }else{
+        memset(_backVeGraph,0,_vertexNum*_vertexNum*sizeof(int));
+    }
+    if(_backResGraph==NULL){
+        _backResGraph=(int*)calloc(_vertexNum*_vertexNum,sizeof(int));
+    }else{
+        memset(_backResGraph,0,_vertexNum*_vertexNum*sizeof(int));
     }
     return 0;
 }
@@ -196,7 +220,7 @@ int graph::dfs(int vID){
 
 int graph::maxFlow(){
     int retVal=0;
-    initResGraph();
+    memcpy((char*)_resGraph,(char*)_veGraph,_vertexNum*_vertexNum*sizeof(int));
     while(pathSearch()!=0){
         /* Find a path, update _resGraph and search for the next round */
         int edgeCount=0;
@@ -227,9 +251,4 @@ int graph::maxFlow(){
     return retVal;
 }
 
-int graph::initResGraph(){
-    _resGraph=(int*)calloc(_vertexNum*_vertexNum,sizeof(int));
-    memcpy((char*)_resGraph,(char*)_veGraph,_vertexNum*_vertexNum*sizeof(int));
-    return 0;
-}
 

@@ -32,12 +32,17 @@ class layoutGen{
         int _ecN;
         int _ecK;
         int _stripeNum;
+        randomGen* _randGen;
+        graph* _graph;
     public:
         layoutGen(int blockNum,config* conf);
         /* conventional placement */
         int* randomPla();
         /* stripe-oriented placement */
         int* SOP();
+        int showPlacement(int*);
+        int examinePla(int*);
+        int setRandomGen(randomGen* rg){_randGen=rg;return 0;};
 };
 
 #endif

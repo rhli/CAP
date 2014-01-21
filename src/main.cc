@@ -4,9 +4,19 @@
 #include "graph.hh"
 #include "config.hh"
 #include "randomGen.hh"
+#include "layoutGen.hh"
 
 int main(int argc,char** argv){
+    if(argc!=2){
+        printf("Usage: %s (seed)\n",argv[1]);
+        exit(0);
+    }
     config* conf=new config();
+    layoutGen* layG=new layoutGen(100,conf);
+    randomGen* rg=new randomGen(atoi(argv[1]));
+    layG->setRandomGen(rg);
+    int retVal=layG->examinePla(layG->randomPla());
+    //printf("%d\n",retVal);
     //graph* g=new graph(conf);
     //g->addEdge(0,0,0);
     //g->addEdge(1,3,1);
@@ -14,15 +24,6 @@ int main(int argc,char** argv){
     //g->removeEdge(0,0,0);
     //g->showAdjMat();
     //printf("max flow: %d\n",g->maxFlow());
-    randomGen* rg=new randomGen(12345);
-    int tot=10;
-    int req=5;
-    int* temp=(int*)calloc(req,sizeof(int));
-    rg->generateList(tot,req,temp);
-    for(int i=0;i<req;i++){
-        printf("%d ",temp[i]);
-    }
-    printf("\n");
-    return 0;
+    return retVal;
 }
 

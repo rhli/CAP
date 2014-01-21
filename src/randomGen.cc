@@ -5,6 +5,11 @@ randomGen::randomGen(int seed){
     srand(_seed);
 }
 
+randomGen::randomGen(){
+    _seed=12345;
+    srand(_seed);
+}
+
 int randomGen::generateList(int tot,int req,int* buf){
     if(tot<req){
         return -1;
@@ -28,4 +33,13 @@ int randomGen::generateList(int tot,int req,int* buf){
     }
     return 0;
 }
+
+int randomGen::generateInt(){
+    return rand();
+}
+
+int randomGen::generateInt(int range){
+    return rand()%range;
+}
+
 

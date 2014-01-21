@@ -39,6 +39,10 @@ class graph{
         int* _veGraph;
         int* _resGraph;
 
+        /* For testing the validity of a block placement */
+        int* _backVeGraph;
+        int* _backResGraph;
+
         vertexInfo** _nodeInd;
         vertexInfo** _rackInd;
 
@@ -63,18 +67,17 @@ class graph{
         int _rackNum;
         int _maxInRack;/* the value of (n-k) */
 
-        int graphInit();
         int pathSearch();
         int getRackPos();
         int dfs(int);
     public:
         graph(config* conf);
+        int graphInit();
         int addEdge(int blockID,int nodeID,int rackID);
         int removeEdge(int blockID,int nodeID,int rackID);
         int maxFlow();
         int showAdjMat();
         int showResMat();
-        int initResGraph();
 };
 
 #endif
