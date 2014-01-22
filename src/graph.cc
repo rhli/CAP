@@ -37,22 +37,6 @@ graph::graph(config* conf){
 int graph::graphInit(){
     //printf("_rackNum: %d\n",_rackNum);
     //printf("_blockNum: %d\n",_blockNum);
-    if(_veGraph==NULL){
-        _veGraph=(int*)calloc(_vertexNum*_vertexNum,sizeof(int));
-    }else{
-        memset(_veGraph,0,_vertexNum*_vertexNum*sizeof(int));
-    }
-    /* We add two types of edges: source to block (capacity=1) and rack to sink (capacity=n-k) */
-    for(int i=0;i<_blockNum;i++){
-        _veGraph[i+_blockOffset]=1;
-    }
-    for(int i=0;i<_nodeNum;i++){
-        _nodeInd[i]=new vertexInfo();
-    }
-    for(int i=0;i<_rackNum;i++){
-        _rackInd[i]=new vertexInfo();
-        _veGraph[(i+_rackOffset)*_vertexNum+_vertexNum-1]=_maxInRack;
-    }
     /* Init residual graph, the two backup matrix */
     if(_resGraph==NULL){
         _resGraph=(int*)calloc(_vertexNum*_vertexNum,sizeof(int));
@@ -68,6 +52,24 @@ int graph::graphInit(){
         _backResGraph=(int*)calloc(_vertexNum*_vertexNum,sizeof(int));
     }else{
         memset(_backResGraph,0,_vertexNum*_vertexNum*sizeof(int));
+    }
+    if(_veGraph==NULL){
+        _veGraph=(int*)calloc(_vertexNum*_vertexNum,sizeof(int));
+    }else{
+        memset(_veGraph,0,_vertexNum*_vertexNum*sizeof(int));
+    }
+    /* We add two types of edges: source to block (capacity=1) and rack to sink (capacity=n-k) */
+    for(int i=0;i<_blockNum;i++){
+        _veGraph[i+_blockOffset]=1;
+        _resGraph[i+_blockOffset]=1;
+    }
+    for(int i=0;i<_nodeNum;i++){
+        _nodeInd[i]=new vertexInfo();
+    }
+    for(int i=0;i<_rackNum;i++){
+        _rackInd[i]=new vertexInfo();
+        _veGraph[(i+_rackOffset)*_vertexNum+_vertexNum-1]=_maxInRack;
+        _resGraph[(i+_rackOffset)*_vertexNum+_vertexNum-1]=_maxInRack;
     }
     return 0;
 }
@@ -92,6 +94,8 @@ int graph::addEdge(int blockID,int nodeID,int rackID){
     //printf(" marker: %d\n",marker);
     if(marker==-1){
         fprintf(stderr,"graph::addEdge(): some weird thing has happened..\n");
+        showAdjMat();
+        exit(0);
         return -1;
     }
     _nodeInd[marker]->setVertexID(nodeID);
@@ -145,7 +149,6 @@ int graph::removeEdge(int blockID,int nodeID,int rackID){
             (rackMarker!=-1)&&
             (_veGraph[(blockID+_blockOffset)*_vertexNum+nodeMarker+_nodeOffset]==1)){
         _veGraph[(blockID+_blockOffset)*_vertexNum+nodeMarker+_nodeOffset]=0;
-        _resGraph[(blockID+_blockOffset)*_vertexNum+nodeMarker+_nodeOffset]=0;
         _nodeInd[nodeMarker]->inDegreeDec();
     }else{
         fprintf(stderr,"no such edge!");
@@ -154,7 +157,6 @@ int graph::removeEdge(int blockID,int nodeID,int rackID){
     if(_nodeInd[nodeMarker]->noInEdge()==1){
         _nodeInd[nodeMarker]->setVertexID(-1);
         _veGraph[(_nodeOffset+nodeMarker)*_vertexNum+_rackOffset+rackMarker]=0;
-        _resGraph[(_nodeOffset+nodeMarker)*_vertexNum+_rackOffset+rackMarker]=0;
         _rackInd[rackMarker]->inDegreeDec();
         if(_rackInd[rackMarker]->noInEdge()){
             _rackInd[rackMarker]->setVertexID(-1);
@@ -190,7 +192,7 @@ int graph::pathSearch(){
     /* We use depth first search */
     memset(_vertexColor,0,_vertexNum*sizeof(int));
     _pathLen=-1;
-    dfs(0);
+    return dfs(0);
 }
 
 int graph::dfs(int vID){
@@ -220,6 +222,7 @@ int graph::dfs(int vID){
     }
     _vertexColor[vID]=2;
     _pathLen--;
+    //printf("graph::dfs() returns %d\n",retVal);
     return retVal;
 }
 
@@ -250,7 +253,8 @@ int graph::maxFlow(){
             edgeCount++;
         }
         retVal+=minCap;
-        free(path);
+        free(_path);
+        _path=NULL;
         //break;
         //showResMat();
     }
@@ -283,7 +287,8 @@ int graph::incrementalMaxFlow(){
             edgeCount++;
         }
         retVal+=minCap;
-        free(path);
+        free(_path);
+        _path=NULL;
         //break;
         //showResMat();
     }
@@ -293,7 +298,7 @@ int graph::incrementalMaxFlow(){
 
 int graph::backGraph(){
     memcpy((char*)_backVeGraph,(char*)_veGraph,_vertexNum*_vertexNum*sizeof(int));
-    memcpy((char*)_backResGraph,(char*)_ResGraph,_vertexNum*_vertexNum*sizeof(int));
+    memcpy((char*)_backResGraph,(char*)_resGraph,_vertexNum*_vertexNum*sizeof(int));
     _backMaxFlow=_maxFlow;
     return 0;
 }

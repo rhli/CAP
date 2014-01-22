@@ -52,8 +52,13 @@ int* layoutGen::SOP(){
             _randGen->generateList(_conf->getNodePerRack(),_conf->getReplicaNum()-1,pos+1);
             for(int j=0;j<_conf->getReplicaNum();j++){
                 pos[j]+=j==0?rackInd[0]*_conf->getNodePerRack():rackInd[1]*_conf->getNodePerRack();
+                //printf("add %d %d %d\n",i,pos[j],pos[j]/_conf->getNodePerRack());
+                _graph->addEdge(i,pos[j],pos[j]/_conf->getNodePerRack());
             }
             if(_graph->incrementalMaxFlow()==0){
+                for(int j=0;j<_conf->getReplicaNum();j++){
+                    _graph->removeEdge(i,pos[j],pos[j]/_conf->getNodePerRack());
+                }
                 _graph->restoreGraph();
             }else{
                 break;
@@ -61,6 +66,7 @@ int* layoutGen::SOP(){
         }
     }
     free(rackInd);
+    showPlacement(retVal);
     return retVal;
 }
 
@@ -83,7 +89,7 @@ int layoutGen::examinePla(int* pla){
             _graph->addEdge(i,pla[i*repFac+j],pla[i*repFac+j]/_conf->getNodePerRack());
         }
     }
-    //printf("max flow: %d\n",_graph->maxFlow());
+    printf("max flow: %d\n",_graph->maxFlow());
     return _graph->maxFlow()==_conf->getEcK()?1:0;
 }
 

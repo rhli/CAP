@@ -15,7 +15,8 @@ int main(int argc,char** argv){
     layoutGen* layG=new layoutGen(100,conf);
     randomGen* rg=new randomGen(atoi(argv[1]));
     layG->setRandomGen(rg);
-    int retVal=layG->examinePla(layG->randomPla());
+    //int retVal=layG->examinePla(layG->randomPla());
+    layG->SOP();
     //printf("%d\n",retVal);
     //graph* g=new graph(conf);
     //g->addEdge(0,0,0);
@@ -24,6 +25,7 @@ int main(int argc,char** argv){
     //g->removeEdge(0,0,0);
     //g->showAdjMat();
     //printf("max flow: %d\n",g->maxFlow());
-    return retVal;
+    //return retVal;
+    return 0;
 }
 
