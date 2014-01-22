@@ -41,6 +41,26 @@ int* layoutGen::randomPla(){
  */
 int* layoutGen::SOP(){
     int* retVal=(int*)calloc(_blockNum*_repFac,sizeof(int));
+    int* rackInd=(int*)calloc(2,sizeof(int));
+    for(int i=0;i<_blockNum;i++){
+        /* Every time, we **try** to generate a placement for ONE block. */
+        while(1){
+            _graph->backGraph();
+            int* pos=retVal+i*_conf->getReplicaNum();
+            _randGen->generateList(_conf->getRackNum(),2,rackInd);
+            _randGen->generateList(_conf->getNodePerRack(),1,pos);
+            _randGen->generateList(_conf->getNodePerRack(),_conf->getReplicaNum()-1,pos+1);
+            for(int j=0;j<_conf->getReplicaNum();j++){
+                pos[j]+=j==0?rackInd[0]*_conf->getNodePerRack():rackInd[1]*_conf->getNodePerRack();
+            }
+            if(_graph->incrementalMaxFlow()==0){
+                _graph->restoreGraph();
+            }else{
+                break;
+            }
+        }
+    }
+    free(rackInd);
     return retVal;
 }
 
