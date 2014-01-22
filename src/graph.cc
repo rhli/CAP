@@ -30,6 +30,7 @@ graph::graph(config* conf){
     _resGraph=NULL;
     _backVeGraph=NULL;
     _backResGraph=NULL;
+    _maxFlow=0;
     graphInit();
 }
 
@@ -96,6 +97,7 @@ int graph::addEdge(int blockID,int nodeID,int rackID){
     _nodeInd[marker]->setVertexID(nodeID);
     _nodeInd[marker]->inDegreeInc();
     _veGraph[(blockID+_blockOffset)*_vertexNum+marker+_nodeOffset]=1;
+    _resGraph[(blockID+_blockOffset)*_vertexNum+marker+_nodeOffset]=1;
 
     int rackMarker=-1;
     int firstRackFree=-1;
@@ -119,6 +121,7 @@ int graph::addEdge(int blockID,int nodeID,int rackID){
     _rackInd[rackMarker]->inDegreeInc();
     _nodeInd[marker]->outDegreeInc();
     _veGraph[(marker+_nodeOffset)*_vertexNum+rackMarker+_rackOffset]=1;
+    _resGraph[(marker+_nodeOffset)*_vertexNum+rackMarker+_rackOffset]=1;
     return 0;
 }
 
@@ -142,6 +145,7 @@ int graph::removeEdge(int blockID,int nodeID,int rackID){
             (rackMarker!=-1)&&
             (_veGraph[(blockID+_blockOffset)*_vertexNum+nodeMarker+_nodeOffset]==1)){
         _veGraph[(blockID+_blockOffset)*_vertexNum+nodeMarker+_nodeOffset]=0;
+        _resGraph[(blockID+_blockOffset)*_vertexNum+nodeMarker+_nodeOffset]=0;
         _nodeInd[nodeMarker]->inDegreeDec();
     }else{
         fprintf(stderr,"no such edge!");
@@ -150,6 +154,7 @@ int graph::removeEdge(int blockID,int nodeID,int rackID){
     if(_nodeInd[nodeMarker]->noInEdge()==1){
         _nodeInd[nodeMarker]->setVertexID(-1);
         _veGraph[(_nodeOffset+nodeMarker)*_vertexNum+_rackOffset+rackMarker]=0;
+        _resGraph[(_nodeOffset+nodeMarker)*_vertexNum+_rackOffset+rackMarker]=0;
         _rackInd[rackMarker]->inDegreeDec();
         if(_rackInd[rackMarker]->noInEdge()){
             _rackInd[rackMarker]->setVertexID(-1);
@@ -245,10 +250,60 @@ int graph::maxFlow(){
             edgeCount++;
         }
         retVal+=minCap;
+        free(path);
         //break;
         //showResMat();
     }
     return retVal;
 }
+
+int graph::incrementalMaxFlow(){
+    int retVal=0;
+    while(pathSearch()!=0){
+        /* Find a path, update _resGraph and search for the next round */
+        int edgeCount=0;
+        //printf("path:\n");
+        int minCap=INT_MAX;
+        /*
+         * Rules for updating residual graph:
+         *  1. find minimal capacity of the path
+         *  2. add reverse edges
+         */
+        while(_path[edgeCount]!=_vertexNum-1){
+            //printf(" %2d %2d\n",_path[edgeCount],_path[edgeCount+1]);
+            if(_resGraph[_path[edgeCount]*_vertexNum+_path[edgeCount+1]]<minCap){
+                minCap=_resGraph[_path[edgeCount]*_vertexNum+_path[edgeCount+1]];
+            }
+            edgeCount++;
+        }
+        edgeCount=0;
+        while(_path[edgeCount]!=_vertexNum-1){
+            _resGraph[_path[edgeCount]*_vertexNum+_path[edgeCount+1]]-=minCap;
+            _resGraph[_path[edgeCount+1]*_vertexNum+_path[edgeCount]]+=minCap;
+            edgeCount++;
+        }
+        retVal+=minCap;
+        free(path);
+        //break;
+        //showResMat();
+    }
+    _maxFlow+=retVal;
+    return retVal;
+}
+
+int graph::backGraph(){
+    memcpy((char*)_backVeGraph,(char*)_veGraph,_vertexNum*_vertexNum*sizeof(int));
+    memcpy((char*)_backResGraph,(char*)_ResGraph,_vertexNum*_vertexNum*sizeof(int));
+    _backMaxFlow=_maxFlow;
+    return 0;
+}
+
+int graph::restoreGraph(){
+    memcpy((char*)_veGraph,(char*)_backVeGraph,_vertexNum*_vertexNum*sizeof(int));
+    memcpy((char*)_resGraph,(char*)_backResGraph,_vertexNum*_vertexNum*sizeof(int));
+    _backMaxFlow=_maxFlow;
+    return 0;
+}
+
 
 

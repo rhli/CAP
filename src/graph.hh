@@ -42,6 +42,7 @@ class graph{
         /* For testing the validity of a block placement */
         int* _backVeGraph;
         int* _backResGraph;
+        int _backMaxFlow; 
 
         vertexInfo** _nodeInd;
         vertexInfo** _rackInd;
@@ -58,7 +59,7 @@ class graph{
 
         /* parameters of the graph */
         int _vertexNum;
-        int _maxFlow;
+        int _maxFlow; /* We use an incremental method to compute max flow, so keep this */
 
         /* Information of the system */
         int _blockNum;/* k in erasure coding */
@@ -76,8 +77,12 @@ class graph{
         int addEdge(int blockID,int nodeID,int rackID);
         int removeEdge(int blockID,int nodeID,int rackID);
         int maxFlow();
+        int incrementalMaxFlow();
         int showAdjMat();
         int showResMat();
+        int backGraph();
+        int restoreGraph();
+        int getMaxFlow(){return _maxFlow;};
 };
 
 #endif
