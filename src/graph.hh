@@ -71,7 +71,6 @@ class graph{
         int pathSearch();
         int getRackPos();
         int dfs(int);
-        int initFromPla(int*);
     public:
         graph(config* conf);
         int graphInit();
@@ -84,7 +83,8 @@ class graph{
         int backGraph();
         int restoreGraph();
         int getMaxFlow(){return _maxFlow;};
-        int* getMaxMatch(int*);
+        int getMaxMatch(int*);
+        int initFromPla(int*);
 };
 
 #endif

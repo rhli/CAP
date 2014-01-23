@@ -310,13 +310,11 @@ int graph::restoreGraph(){
     return 0;
 }
 
-int* graph::getMaxMatch(int* pla){
+int graph::getMaxMatch(int* retVal){
     /* In this function, we get the max matching from the residual graph */
-    int* retVal=(int*)calloc(_blockNum,sizeof(int));
     for(int i=0;i<_blockNum;i++){
         retVal[i]=-1;
     }
-    initFromPla(pla);
     if(maxFlow()!=_conf->getEcK()){
         fprintf(stderr,"graph::getMaxMatch(): Need re-allocation!");
     }
