@@ -5,10 +5,13 @@
 
 class striping{
         config* _conf;
+        int _ecN;
+        int _ecK;
+        int _repFac;
     public:
         striping(config* conf);
         /* Given a placement, generate the striping strategy */
-        int* strOp(int*);
+        int strOp(int*,int*);
 };
 
 #endif
