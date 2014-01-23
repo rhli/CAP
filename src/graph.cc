@@ -310,5 +310,40 @@ int graph::restoreGraph(){
     return 0;
 }
 
+int* graph::getMaxMatch(int* pla){
+    /* In this function, we get the max matching from the residual graph */
+    int* retVal=(int*)calloc(_blockNum,sizeof(int));
+    for(int i=0;i<_blockNum;i++){
+        retVal[i]=-1;
+    }
+    initFromPla(pla);
+    if(maxFlow()!=_conf->getEcK()){
+        fprintf(stderr,"graph::getMaxMatch(): Need re-allocation!");
+    }
+    int index=0;
+    for(int i=_blockOffset;i<_blockNum+_blockOffset;i++){
+        for(int j=_nodeOffset;j<_nodeOffset+_nodeNum;j++){
+            if(_resGraph[j*_vertexNum+i]==1){
+                retVal[index]=_nodeInd->getVertexID();
+                break;
+            }
+        }
+        index++;
+    }
+    return 0;
+}
+
+/* Initiate a graph with a given placement */
+int graph::initFromPla(int* pla){
+    int repFac=_conf->getReplicaNum();
+    for(int i=0;i<_blockNum;i++){
+        for(int j=0;j<repFac;j++){
+            this->addEdge(i,pla[i*repFac+j],pla[i*repFac+j]/_conf->getNodePerRack());
+        }
+    }
+    return 0;
+}
+
+
 
 
