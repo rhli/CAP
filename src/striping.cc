@@ -16,7 +16,7 @@ int striping::strOp(int* input,int* output){
      */
     _graph->getMaxMatch(output);
     for(int i=0;i<_ecK;i++){
-        printf("%d\n",output[i]);
+        printf(i==_ecK-1?"%4d\n":"%4d",output[i]);
     }
     /*
      * TODO: determine the location of parities

@@ -47,6 +47,11 @@ int* layoutGen::SOP(){
         while(1){
             _graph->backGraph();
             int* pos=retVal+i*_conf->getReplicaNum();
+            /*
+             * TODO: We can give higher probability to the nodes we prefer
+             * (e.g., nodes with higher storage capacity, and/or better network link condition).
+             * Currently, we just use a random placement.
+             */
             _randGen->generateList(_conf->getRackNum(),2,rackInd);
             _randGen->generateList(_conf->getNodePerRack(),1,pos);
             _randGen->generateList(_conf->getNodePerRack(),_conf->getReplicaNum()-1,pos+1);

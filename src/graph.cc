@@ -322,7 +322,7 @@ int graph::getMaxMatch(int* retVal){
     for(int i=_blockOffset;i<_blockNum+_blockOffset;i++){
         for(int j=_nodeOffset;j<_nodeOffset+_nodeNum;j++){
             if(_resGraph[j*_vertexNum+i]==1){
-                retVal[index]=_nodeInd->getVertexID();
+                retVal[index]=_nodeInd[j-_nodeOffset]->getVertexID();
                 break;
             }
         }

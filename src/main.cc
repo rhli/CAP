@@ -5,6 +5,7 @@
 #include "config.hh"
 #include "randomGen.hh"
 #include "layoutGen.hh"
+#include "striping.hh"
 
 int main(int argc,char** argv){
     if(argc!=2){
@@ -16,7 +17,10 @@ int main(int argc,char** argv){
     randomGen* rg=new randomGen(atoi(argv[1]));
     layG->setRandomGen(rg);
     //int retVal=layG->examinePla(layG->randomPla());
-    layG->SOP();
+    int* pla=layG->SOP();
+    striping* strp=new striping(conf);
+    int* output=(int*)calloc(conf->getEcN(),sizeof(int));
+    strp->strOp(pla,output);
     //printf("%d\n",retVal);
     //graph* g=new graph(conf);
     //g->addEdge(0,0,0);
