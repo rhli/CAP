@@ -19,6 +19,7 @@ int main(int argc,char** argv){
     //int retVal=layG->examinePla(layG->randomPla());
     int* pla=layG->SOP();
     striping* strp=new striping(conf);
+    strp->setRandomGen(rg);
     int* output=(int*)calloc(conf->getEcN(),sizeof(int));
     strp->strOp(pla,output);
     //printf("%d\n",retVal);
