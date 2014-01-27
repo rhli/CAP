@@ -331,6 +331,29 @@ int graph::getMaxMatch(int* retVal){
     return 0;
 }
 
+/* This function removes a vertex representing a node(slave) */
+int graph::removeVertex(int vid){
+    int vertexInd=-1;
+    for(int i=0;i<_nodeNum;i++){
+        if(_nodeInd[i]->getVertexID()==vid){
+            vertexInd=i+_nodeOffset;
+            break;
+        }
+    }
+    if(vertexInd==1){
+        fprintf(stderr,"graph::removeVertex(): no such vertex\n");
+        return -1;
+    }
+    /* remove the edges out of this vertex */
+    for(int i=_blockOffset;i<_blockOffset+_blockNum;i++){
+        if(_veGraph[i*_vertexNum+vertexInd]==1){
+            removeEdge(i,vertexInd,vertexInd/_conf->getNodePerRack());
+        }
+    }
+    _nodeInd[vertexInd-_nodeOffset]->reset();
+    return 0;
+}
+
 /* Initiate a graph with a given placement */
 int graph::initFromPla(int* pla){
     int repFac=_conf->getReplicaNum();

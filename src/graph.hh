@@ -25,6 +25,7 @@ class vertexInfo{
         int noInEdge(){return _inDegree==0?1:0;};
         int noOutEdge(){return _outDegree==0?1:0;};
         int isFree(){return noInEdge()|noOutEdge();};
+        int reset(){_vertexID=-1;_inDegree=0;_outDegree=0;};
 };
 
 /*
@@ -85,6 +86,7 @@ class graph{
         int getMaxFlow(){return _maxFlow;};
         int getMaxMatch(int*);
         int initFromPla(int*);
+        int removeVertex(int);
 };
 
 #endif
