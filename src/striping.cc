@@ -20,9 +20,12 @@ int striping::strOp(int* input,int* output){
      */
     _graph->getMaxMatch(output);
     for(int i=0;i<_ecK;i++){
-        printf(i==_ecK-1?"%4d\n":"%4d",output[i]);
-        _rackOcp[output[i]/_maxInRack]++;
+        _rackOcp[output[i]/_conf->getNodePerRack()]++;
     }
+    //for(int i=0;i<_conf->getRackNum();i++){
+    //    printf("%d\n",_rackOcp[i]);
+    //}
+    //printf("_maxInRack:%d\n",_maxInRack);
     /*
      * TODO: determine the location of parities
      */
@@ -32,15 +35,16 @@ int striping::strOp(int* input,int* output){
         int nodePos=-1;
         while(1){
             rackPos=_randomGen->generateInt(rackNum);
-            if(_rackOcp[rackPos]!=_maxInRack){
+            //printf("%d: _rackOcp[%d]=%d\n",i,rackPos,_rackOcp[rackPos]);
+            if(_rackOcp[rackPos]<_maxInRack){
                 break;
             }
         }
         while(1){
             nodePos=_randomGen->generateInt(rackNum);
             int duplicated=0;
-            for(int j=0;j<_i;j++){
-                if(nodePos==output[j]){
+            for(int j=0;j<i;j++){
+                if(nodePos+rackPos*_conf->getNodePerRack()==output[j]){
                     duplicated=1;
                     break;
                 }
@@ -49,8 +53,12 @@ int striping::strOp(int* input,int* output){
                 break;
             }
         }
-        output[i]=nodePos;
+        output[i]=nodePos+rackPos*_conf->getNodePerRack();
         _rackOcp[rackPos]++;
+    }
+    for(int i=0;i<_ecN;i++){
+        printf(i==_ecN-1?"%4d\n":"%4d",output[i]);
+        _rackOcp[output[i]/_maxInRack]++;
     }
 }
 
