@@ -63,11 +63,25 @@ int graph::graphInit(){
         _veGraph[i+_blockOffset]=1;
         _resGraph[i+_blockOffset]=1;
     }
-    for(int i=0;i<_nodeNum;i++){
-        _nodeInd[i]=new vertexInfo();
+    if(_nodeInd==NULL){
+        for(int i=0;i<_nodeNum;i++){
+            _nodeInd[i]=new vertexInfo();
+        }
+    }else{
+        for(int i=0;i<_nodeNum;i++){
+            _nodeInd[i]->reset();
+        }
+    }
+    if(_rackInd==NULL){
+        for(int i=0;i<_rackNum;i++){
+            _rackInd[i]=new vertexInfo();
+        }
+    }else{
+        for(int i=0;i<_rackNum;i++){
+            _rackInd[i]->reset();
+        }
     }
     for(int i=0;i<_rackNum;i++){
-        _rackInd[i]=new vertexInfo();
         _veGraph[(i+_rackOffset)*_vertexNum+_vertexNum-1]=_maxInRack;
         _resGraph[(i+_rackOffset)*_vertexNum+_vertexNum-1]=_maxInRack;
     }
