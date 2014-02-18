@@ -21,6 +21,8 @@ config::config(){
             _ecK=atoi(ele->NextSiblingElement("value")->GetText());
         }else if(strcmp(ele->GetText(),"replicaNum")==0){
             _replicaNum=atoi(ele->NextSiblingElement("value")->GetText());
+        }else if(strcmp(ele->GetText(),"repPlaPolicy")==0){
+            _repPlaPolicy=atoi(ele->NextSiblingElement("value")->GetText());
         }
     }
     _nodeNum=_rackNum*_nodePerRack;

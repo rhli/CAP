@@ -36,6 +36,7 @@ class layoutGen{
         graph* _graph;
     public:
         layoutGen(int blockNum,config* conf);
+        layoutGen(config* conf);
         /* conventional placement */
         int* randomPla();
         /* stripe-oriented placement */

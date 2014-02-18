@@ -12,6 +12,7 @@ class config{
         int _nodeNum;
         int _ecN;
         int _ecK;
+        int _repPlaPolicy;
 
         int _replicaNum;
 
@@ -23,6 +24,7 @@ class config{
         int getEcN(){return _ecN;};
         int getEcK(){return _ecK;};
         int getReplicaNum(){return _replicaNum;};
+        int getRepPlaPolicy(){return _repPlaPolicy;};
 };
 
 #endif

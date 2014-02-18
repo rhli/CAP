@@ -2,8 +2,18 @@
 
 layoutGen::layoutGen(int blockNum,config* conf){
     _conf=conf;
+    _repFac=_conf->getReplicaNum();
     _blockNum=blockNum;
     _blockNum=_conf->getEcK();
+    _stripeNum=_blockNum%_conf->getEcK()==0?_blockNum%_conf->getEcK():_blockNum%_conf->getEcK()+1;
+    _graph=new graph(_conf);
+}
+
+/* Currently, we use this constructor */
+layoutGen::layoutGen(config* conf){
+    _conf=conf;
+    _blockNum=_conf->getEcK();
+    _repFac=_conf->getReplicaNum();
     _stripeNum=_blockNum%_conf->getEcK()==0?_blockNum%_conf->getEcK():_blockNum%_conf->getEcK()+1;
     _graph=new graph(_conf);
 }
@@ -12,7 +22,8 @@ layoutGen::layoutGen(int blockNum,config* conf){
  * We implement the default random placement by HDFS
  * The return value is a matrix containing where to place a block
  *
- * TODO: varify
+ * TODO: varify how HDFS does for more than three replicas.
+ *
  * We place 1 block in a random rack and other blocks in another
  * random rack, but in different nodes.
  */
@@ -42,11 +53,12 @@ int* layoutGen::randomPla(){
 int* layoutGen::SOP(){
     int* retVal=(int*)calloc(_blockNum*_repFac,sizeof(int));
     int* rackInd=(int*)calloc(2,sizeof(int));
+    _graph->graphInit();
     for(int i=0;i<_blockNum;i++){
         /* Every time, we **try** to generate a placement for ONE block. */
         while(1){
             _graph->backGraph();
-            int* pos=retVal+i*_conf->getReplicaNum();
+            int* pos=retVal+i*_repFac;
             /*
              * TODO: We can give higher probability to the nodes we prefer
              * (e.g., nodes with higher storage capacity, and/or better network link condition).
@@ -54,7 +66,7 @@ int* layoutGen::SOP(){
              */
             _randGen->generateList(_conf->getRackNum(),2,rackInd);
             _randGen->generateList(_conf->getNodePerRack(),1,pos);
-            _randGen->generateList(_conf->getNodePerRack(),_conf->getReplicaNum()-1,pos+1);
+            _randGen->generateList(_conf->getNodePerRack(),_repFac-1,pos+1);
             for(int j=0;j<_conf->getReplicaNum();j++){
                 pos[j]+=j==0?rackInd[0]*_conf->getNodePerRack():rackInd[1]*_conf->getNodePerRack();
                 //printf("add %d %d %d\n",i,pos[j],pos[j]/_conf->getNodePerRack());
@@ -71,7 +83,7 @@ int* layoutGen::SOP(){
         }
     }
     free(rackInd);
-    showPlacement(retVal);
+    //showPlacement(retVal);
     return retVal;
 }
 
