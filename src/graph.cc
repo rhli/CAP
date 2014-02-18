@@ -326,12 +326,22 @@ int graph::restoreGraph(){
 
 int graph::getMaxMatch(int* retVal){
     /* In this function, we get the max matching from the residual graph */
-    for(int i=0;i<_blockNum;i++){
+    for(int i=0;i<_conf->getEcN();i++){
         retVal[i]=-1;
     }
-    if(maxFlow()!=_conf->getEcK()){
-        fprintf(stderr,"graph::getMaxMatch(): Need re-allocation!");
-    }
+    /*
+     * We comment the following lines because for conventional algorithm, it is
+     * possible that we need re-allocation. 
+     *
+     * In this way, we just keep the value in array to be -1
+     */
+    //if(maxFlow()!=_conf->getEcK()){
+    //    fprintf(stderr,"graph::getMaxMatch(): Need re-allocation!");
+    //}
+
+    //showAdjMat();
+    maxFlow();
+    //showResMat();
     int index=0;
     for(int i=_blockOffset;i<_blockNum+_blockOffset;i++){
         for(int j=_nodeOffset;j<_nodeOffset+_nodeNum;j++){
@@ -370,10 +380,9 @@ int graph::removeVertex(int vid){
 
 /* Initiate a graph with a given placement */
 int graph::initFromPla(int* pla){
-    int repFac=_conf->getReplicaNum();
     for(int i=0;i<_blockNum;i++){
-        for(int j=0;j<repFac;j++){
-            this->addEdge(i,pla[i*repFac+j],pla[i*repFac+j]/_conf->getNodePerRack());
+        for(int j=0;j<_replicaNum;j++){
+            this->addEdge(i,pla[i*_replicaNum+j],pla[i*_replicaNum+j]/_conf->getNodePerRack());
         }
     }
     return 0;

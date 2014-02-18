@@ -15,6 +15,8 @@ int main(int argc,char** argv){
         strM->write();
     }
     strM->showNodeCapacity();
+    strM->strOp();
+    strM->showNodeCapacity();
     //if(argc!=2){
     //    printf("Usage: %s (seed)\n",argv[1]);
     //    exit(0);

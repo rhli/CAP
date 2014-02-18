@@ -23,12 +23,12 @@ int stripeManager::pushStripe(stripe* str){
     stripeNode* tmp=(stripeNode*)calloc(1,sizeof(stripeNode));
     tmp->_str=str;
     tmp->_next=NULL;
-    _sQueueTail=tmp;
     if(_stripeQueue==NULL){
         _stripeQueue=tmp;
     }else{
         _sQueueTail->_next=tmp;
     }
+    _sQueueTail=tmp;
     /* TODO: add striping time */
 
     _stripeCount++;
@@ -36,6 +36,9 @@ int stripeManager::pushStripe(stripe* str){
 }
 
 stripe* stripeManager::popStripe(){
+    if(_stripeQueue==NULL){
+        return NULL;
+    }
     stripe* retVal=_stripeQueue->_str;
     stripeNode* tmp=_stripeQueue;
     _stripeQueue=_stripeQueue->_next;
@@ -44,10 +47,27 @@ stripe* stripeManager::popStripe(){
     return retVal;
 }
 
-int strOp(){
-    while(1){
+int stripeManager::strOp(){
+    stripe* str;
+    while((str=popStripe())!=NULL){
         //TODO: do striping ...
-        ;
+        int* loc=str->getLoc();
+        //for(int i=0;i<_ecK*_repFac;i++){
+        //    printf(i%3==0?"%4d":"%3d",loc[i]);
+        //}
+        //printf("\n");
+        int* output=(int*)calloc(_ecN,sizeof(int));
+        _striping->strOp(loc,output);
+        str->setLoc(output);
+        /* Numerical job */
+        for(int i=0;i<_ecK*_repFac;i++){
+            _blockCountInNode[loc[i]]--;
+        }
+        for(int i=0;i<_ecN;i++){
+            //printf("%3d",output[i]);
+            _blockCountInNode[output[i]]++;
+        }
+        free(loc);
     }
     return 0;
 }

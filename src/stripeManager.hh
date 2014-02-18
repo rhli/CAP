@@ -41,7 +41,7 @@ class stripeManager{
          * erasure coded format.
          * This function serves as a background process.
          */
-        int strOp();
+        //int strOp();
         /* 
          * Works as a queue, however, we do dequeue operation when the stripe is
          * "striped".
@@ -57,6 +57,11 @@ class stripeManager{
         stripe* write();
         int showNodeCapacity();
         int showRackCapacity();
+        /* 
+         * TODO:Test only, restore the one as private function after combined with
+         * CSIM
+         */
+        int strOp();
 };
 
 #endif
