@@ -7,16 +7,23 @@
 #include "layoutGen.hh"
 #include "striping.hh"
 #include "stripeManager.hh"
+#include "trafficManager.hh"
+#include "cpp.h"
 
-int main(int argc,char** argv){
+extern "C" void sim(int argc,char** argv){
+    create("sim");
     config* conf=new config();
-    stripeManager *strM=new stripeManager(conf);
-    for(int i=0;i<100;i++){
-        strM->write();
-    }
-    strM->showNodeCapacity();
-    strM->strOp();
-    strM->showNodeCapacity();
+    puts("test");
+    hold(100);
+    trafficManager* traM=new trafficManager(conf);
+    hold(100);
+    //stripeManager *strM=new stripeManager(conf);
+    //for(int i=0;i<100;i++){
+    //    strM->write();
+    //}
+    //strM->showNodeCapacity();
+    //strM->strOp();
+    //strM->showNodeCapacity();
     //if(argc!=2){
     //    printf("Usage: %s (seed)\n",argv[1]);
     //    exit(0);
@@ -39,6 +46,5 @@ int main(int argc,char** argv){
     //g->showAdjMat();
     //printf("max flow: %d\n",g->maxFlow());
     //return retVal;
-    return 0;
 }
 

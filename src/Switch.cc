@@ -13,24 +13,24 @@ Switch::Switch(int portNum,int isRoot){
         _toChildren[i]=new facility("swi");
         _fromChildren[i]=new facility("swi");
     }
-    if(_isRoot!=1){
-        _toParent=new facility("swi");
-        _fromParent=new facility("swi");
-    }
+    //if(_isRoot!=1){
+    //    _toParent=new facility("swi");
+    //    _fromParent=new facility("swi");
+    //}
 }
 
 int Switch::transferData(int des,int src,double amount){
     //printf("Switch::transferData(): des %d,src %d,amount %lf\n",des,src,amount);
     //printf("Switch::transferData(): startChild %d\n",_startChild);
     if(src==-1){
-        _fromParent->reserve();
+        //_fromParent->reserve();
         /** TODO: add some randomness here */
         _toChildren[des-_startChild]->use(amount/_bandwidth);
-        _fromParent->release();
+        //_fromParent->release();
     }else if(des==-1){
         _fromChildren[src-_startChild]->reserve();
         /** TODO: add some randomness here */
-        _toParent->use(amount/_bandwidth);
+        //_toParent->use(amount/_bandwidth);
         _fromChildren[src-_startChild]->release();
     }else{
         _fromChildren[src-_startChild]->reserve();

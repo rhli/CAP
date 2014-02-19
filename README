@@ -10,4 +10,8 @@ likely to lead to some reliability issues.
 We propose a new placement called stripe-oriented placement
 targeting at solving the above problems.
 
+==== Some finding via development ====
+
+1. Do not use -O3 in while compiling programs of CSIM.
+
 

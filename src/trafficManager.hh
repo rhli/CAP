@@ -9,6 +9,13 @@ class trafficManager{
         stripeManager* _strM;
         NodeTree* _nodeTree;
         config* _conf;
+        
+        /*
+         * Basic system settings
+         */
+        int _ecN;
+        int _ecK;
+
         /*
          * We have three data streams here (Not sure whether the word stream is precise here..)
          * 1. A write stream follow some distribution
@@ -20,6 +27,10 @@ class trafficManager{
         int bgTraffic();
     public:
         trafficManager(config*);
+        /* Just for testing purpose on whether NodeTree is performing well */
+        void test1();
+        void test2();
+        void test3();
 };
 
 #endif
