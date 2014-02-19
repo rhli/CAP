@@ -44,11 +44,11 @@ int Switch::transferData(int des,int src,double amount){
 
 int Switch::reservePath(int des,int src){
     if(src==-1){
-        _fromParent->reserve();
+        //_fromParent->reserve();
         _toChildren[des-_startChild]->reserve();
     }else if(des==-1){
         _fromChildren[src-_startChild]->reserve();
-        _toParent->reserve();
+        //_toParent->reserve();
     }else{
         _fromChildren[src-_startChild]->reserve();
         _toChildren[des-_startChild]->reserve();
@@ -58,11 +58,11 @@ int Switch::reservePath(int des,int src){
 
 int Switch::releasePath(int des,int src){
     if(src==-1){
-        _fromParent->release();
+        //_fromParent->release();
         _toChildren[des-_startChild]->release();
     }else if(des==-1){
         _fromChildren[src-_startChild]->release();
-        _toParent->release();
+        //_toParent->release();
     }else{
         _fromChildren[src-_startChild]->release();
         _toChildren[des-_startChild]->release();

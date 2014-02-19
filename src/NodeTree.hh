@@ -8,7 +8,8 @@
 
 typedef struct tNode{
     int _tNodeID;
-    /** switch or host 
+    /* 
+     * switch or host 
      * 0 for switch and 1 for host
      */
     int _type;
@@ -20,6 +21,9 @@ typedef struct tNode{
     int _endHost;
 }tNode;
 
+/*
+ * We use this class to simulate network traffic and run benchmark
+ */
 class NodeTree{
         tNode* _treeRoot;
         tNode** _hostList;
@@ -32,7 +36,8 @@ class NodeTree{
 
         int _maxLevel;
 
-        /** Here is how we transfer our data:
+        /* 
+         * Here is how we transfer our data:
          * Every time, we transfer the amount of _dataTransferOnce
          * until all the required data is transferred.
          */
@@ -42,7 +47,7 @@ class NodeTree{
         int nameSwitches();
         int setSwitches(tNode*);
         int showSubTree(tNode*);
-        /**
+        /*
          * The returned array of getPath():
          * retVal[0] is the length of the array (not including itself)
          * the rest is the real array
@@ -60,8 +65,8 @@ class NodeTree{
         //int* getRackList();
         int* getRackNodeList(int rackID);
         int dataTransfer(int des,int src,double size);
-        /**
-         * A two elment array representing the range of hosts
+        /*
+         * return a two elment array representing the range of hosts
          * sharing the same elments in some level
          */
         int* getNodeList(int nodeID,int level);
