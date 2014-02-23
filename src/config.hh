@@ -15,6 +15,8 @@ class config{
         int _repPlaPolicy;
 
         int _replicaNum;
+        double _bandwidth;
+        int _blockSize;
 
     public:
         config();
@@ -25,6 +27,8 @@ class config{
         int getEcK(){return _ecK;};
         int getReplicaNum(){return _replicaNum;};
         int getRepPlaPolicy(){return _repPlaPolicy;};
+        int getBlockSize(){return _blockSize;};
+        double getBandwidth(){return _bandwidth;};
 };
 
 #endif

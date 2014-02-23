@@ -13,10 +13,8 @@
 extern "C" void sim(int argc,char** argv){
     create("sim");
     config* conf=new config();
-    puts("test");
-    hold(100);
     trafficManager* traM=new trafficManager(conf);
-    hold(100);
+    hold(10000);
     //stripeManager *strM=new stripeManager(conf);
     //for(int i=0;i<100;i++){
     //    strM->write();

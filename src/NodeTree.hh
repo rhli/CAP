@@ -57,6 +57,9 @@ class NodeTree{
         Switch** _switchList;
         int setHostRange(tNode*);
 
+        /* detect whether within the range of a switch */
+        int isInSwitch(int node,tNode* tn);
+
     public:
         NodeTree(int leafNum,int maxChild);
 
@@ -73,6 +76,8 @@ class NodeTree{
         int getMaxLevel(){return _maxLevel;}
         int* getRackRange(int rackID);
         int setBandwidth(double b){_bandwidth=b;return 0;};
+
+        int getNearest(int,int,int*);
 };
 
 #endif

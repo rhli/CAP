@@ -23,6 +23,10 @@ config::config(){
             _replicaNum=atoi(ele->NextSiblingElement("value")->GetText());
         }else if(strcmp(ele->GetText(),"repPlaPolicy")==0){
             _repPlaPolicy=atoi(ele->NextSiblingElement("value")->GetText());
+        }else if(strcmp(ele->GetText(),"blockSize")==0){
+            _blockSize=atoi(ele->NextSiblingElement("value")->GetText());
+        }else if(strcmp(ele->GetText(),"bandwidth")==0){
+            _bandwidth=atof(ele->NextSiblingElement("value")->GetText());
         }
     }
     _nodeNum=_rackNum*_nodePerRack;

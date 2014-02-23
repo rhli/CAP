@@ -201,6 +201,7 @@ int NodeTree::dataTransfer(int des,int src,double amount){
     double startTime=simtime();
     double transferedAmount=0;
     while(transferedAmount<amount){
+        //printf("NodeTree::dataTransfer():%lf transferred at %lf\n",transferedAmount,simtime());
         /** Do transfer */
         double tAmount=_dataTransferOnce<amount-transferedAmount?
             _dataTransferOnce:amount-transferedAmount;
@@ -269,6 +270,33 @@ int* NodeTree::getRackRange(int rackID){
     retVal[0]=_rackList[rackID]->_startHost;
     retVal[1]=_rackList[rackID]->_endHost;
     return retVal;
+}
+
+/*
+ * get the nearest node from list
+ */
+int NodeTree::getNearest(int node,int len,int* list){
+    int retVal;
+    tNode* t=_hostList[node];
+    while(1){
+        for(int i=0;i<len;i++){
+            if(isInSwitch(list[i],t)==1){
+                return list[i];
+            }
+        }
+        if(t==_treeRoot){
+            fprintf(stderr,"NodeTree::getNearest(): no nodes\n");
+            return -1;
+        }
+    }
+    /*
+     * Dummy code, while not get executed
+     */
+    return -1;
+}
+
+int NodeTree::isInSwitch(int node,tNode* tn){
+    return (node>=tn->_startHost)&&(node<=tn->_endHost)?1:0;
 }
 
 
