@@ -61,6 +61,8 @@ void trafficManager::stripeOp(int* repLoc,int* ecLoc,int opNode){
     for(int i=0;i<_ecK;i++){
         ;
     }
+    /* Computation is much faster compared with download, so we do not consider 
+      computation cost. */
     /* write parities */
     for(int i=_ecK;i<_ecN;i++){
         ;
