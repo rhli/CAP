@@ -38,9 +38,9 @@ class layoutGen{
         layoutGen(int blockNum,config* conf);
         layoutGen(config* conf);
         /* conventional placement */
-        int* randomPla();
+        int randomPla(int*);
         /* stripe-oriented placement */
-        int* SOP();
+        int SOP(int*);
         int showPlacement(int*);
         int examinePla(int*);
         int setRandomGen(randomGen* rg){_randGen=rg;return 0;};

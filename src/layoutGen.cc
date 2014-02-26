@@ -27,11 +27,11 @@ layoutGen::layoutGen(config* conf){
  * We place 1 block in a random rack and other blocks in another
  * random rack, but in different nodes.
  */
-int* layoutGen::randomPla(){
-    int* retVal=(int*)calloc(_blockNum*_repFac,sizeof(int));
+int layoutGen::randomPla(int* output){
+    //int* retVal=(int*)calloc(_blockNum*_repFac,sizeof(int));
     int* rackInd=(int*)calloc(2,sizeof(int));
     for(int i=0;i<_blockNum;i++){
-        int* pos=retVal+i*_conf->getReplicaNum();
+        int* pos=output+i*_conf->getReplicaNum();
         _randGen->generateList(_conf->getRackNum(),2,rackInd);
         _randGen->generateList(_conf->getNodePerRack(),1,pos);
         _randGen->generateList(_conf->getNodePerRack(),_conf->getReplicaNum()-1,pos+1);
@@ -41,7 +41,7 @@ int* layoutGen::randomPla(){
     }
     free(rackInd);
     //showPlacement(retVal);
-    return retVal;
+    return 0;
 }
 
 /*
@@ -49,22 +49,28 @@ int* layoutGen::randomPla(){
  * We benefit from stripe-oriented placement in two perspective:
  *  1. Reliability;
  *  2. Striping performance;
+ *
+ *  return the index of Core-rack
+ *  TODO: add core-rack support
  */
-int* layoutGen::SOP(){
-    int* retVal=(int*)calloc(_blockNum*_repFac,sizeof(int));
+int layoutGen::SOP(int* output){
+    //int* retVal=(int*)calloc(_blockNum*_repFac,sizeof(int));
     int* rackInd=(int*)calloc(2,sizeof(int));
+    int retVal=_randGen->generateInt(_conf->getRackNum());
     _graph->graphInit();
     for(int i=0;i<_blockNum;i++){
         /* Every time, we **try** to generate a placement for ONE block. */
         while(1){
             _graph->backGraph();
-            int* pos=retVal+i*_repFac;
+            int* pos=output+i*_repFac;
             /*
              * TODO: We can give higher probability to the nodes we prefer
              * (e.g., nodes with higher storage capacity, and/or better network link condition).
              * Currently, we just use a random placement.
              */
-            _randGen->generateList(_conf->getRackNum(),2,rackInd);
+            //_randGen->generateList(_conf->getRackNum(),2,rackInd);
+            rackInd[0]=retVal;
+            while((rackInd[1]=_randGen->generateInt(_conf->getRackNum()))==rackInd[0]);
             _randGen->generateList(_conf->getNodePerRack(),1,pos);
             _randGen->generateList(_conf->getNodePerRack(),_repFac-1,pos+1);
             for(int j=0;j<_conf->getReplicaNum();j++){
@@ -83,7 +89,6 @@ int* layoutGen::SOP(){
         }
     }
     free(rackInd);
-    //showPlacement(retVal);
     return retVal;
 }
 

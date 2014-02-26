@@ -17,6 +17,7 @@ class stripe{
 
         int _isReplicated;
         int* _locations;
+        int _coreRack;
     public:
         stripe(config* c){_isReplicated=1;_conf=c;};
         int setLoc(int* loc){_locations=loc;return 0;};
@@ -24,6 +25,8 @@ class stripe{
         int isReplicated(){return _isReplicated;};
         int* getLoc(){return _locations;};
         int getBlockPos(int blockID,int* pos);
+        int setCoreRack(int cr){_coreRack=cr;return 0;};
+        int getCoreRack(){return _coreRack;};
 };
 
 #endif

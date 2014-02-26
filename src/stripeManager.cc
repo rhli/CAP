@@ -3,6 +3,7 @@
 stripeManager::stripeManager(config* c){
     _conf=c;
     _stripeQueue=NULL;
+    _sQueueTail=NULL;
     _stripeCount=0;
     _repPlaPolicy=_conf->getRepPlaPolicy();
     _nodeNum=_conf->getNodeNum();
@@ -76,11 +77,15 @@ int stripeManager::strOp(){
 stripe* stripeManager::write(double time){
     stripe* retVal=new stripe(_conf);
     //puts("write(): before set loc");
+    int* loc=(int*)calloc(_repFac*_ecK,sizeof(int));
+    int coreRack=-1;
     if(_repPlaPolicy==0){
-        retVal->setLoc(_lGen->randomPla());
+        coreRack=_lGen->randomPla(loc);
     }else{
-        retVal->setLoc(_lGen->SOP());
+        coreRack=_lGen->SOP(loc);
     }
+    retVal->setLoc(loc);
+    retVal->setCoreRack(coreRack);
     //puts("write(): after set loc");
     addRepStripe(retVal->getLoc());
     pushStripe(retVal,time);
@@ -109,14 +114,17 @@ int stripeManager::showRackCapacity(){
 
 int* stripeManager::stripeAStripe(){
     stripe* str=popStripe();
-    int* retVal=(int*)calloc(_repFac*_ecK+_ecN,sizeof(int));
+    if(str==NULL){
+        return NULL;
+    }
+    int* retVal=(int*)calloc(_repFac*_ecK+_ecN+1,sizeof(int));
     int* loc=str->getLoc();
     int* output=(int*)calloc(_ecN,sizeof(int));
     _striping->strOp(loc,output);
     memcpy((char*)retVal,(char*)loc,_repFac*_ecK*sizeof(int));
     memcpy((char*)retVal+_repFac*_ecK*sizeof(int),(char*)output,_ecN*sizeof(int));
     //str->setLoc(output);
-    delete(str);
+    //delete(str);
     /* Numerical job */
     for(int i=0;i<_ecK*_repFac;i++){
         _blockCountInNode[loc[i]]--;

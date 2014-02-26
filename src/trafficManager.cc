@@ -19,8 +19,9 @@ trafficManager::trafficManager(config* c){
     create("traM");
     printf("trafficManager::trafficManager() starts\n");
     //test();
-    write();
     stripe();
+    hold(1);
+    write();
     //bgTraffic();
     hold(10000);
 }
@@ -63,13 +64,17 @@ void trafficManager::writeOp(int* loc){
 
 void trafficManager::stripe(){
     create("stripe");
+    //hold(10);
     while(1){
         int* loc=_strM->stripeAStripe();
-        /*
-         * TODO: add Core-rack support
-         */
-        //stripeOp(loc,loc+_repFac*_ecK);
-        free(loc);
+        if(loc!=NULL){
+            /*
+             * TODO: add Core-rack support
+             */
+            stripeOp(loc,loc+_repFac*_ecK,loc[_repFac*_ecK+_ecN]);
+            free(loc);
+        }
+        hold(10);
     }
     return;
 }
@@ -78,6 +83,7 @@ void trafficManager::stripeOp(int* repLoc,int* ecLoc,int opNode){
     create("stripeOp");
     double startTime=simtime();
     fprintf(stdout,"stripe op: starts at %lf\n",startTime);
+    return;
     /* do download */
     for(int i=0;i<_ecK;i++){
         int* repPos=repLoc+i*_repFac;
