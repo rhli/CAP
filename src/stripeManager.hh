@@ -8,7 +8,7 @@
 
 typedef struct stripeNode{
     stripe* _str;
-    int _stime;
+    int _sTime;
     stripeNode* _next;
 }stripeNode;
 
@@ -22,6 +22,11 @@ class stripeManager{
 
         int* _blockCountInNode;
         int* _blockCountInRack;
+
+        /*
+         * After how long a stripe is striped into erasure code format
+         */
+        double _stripeInterval;
 
         /*
          * Replication placement policy, get from config
@@ -46,7 +51,7 @@ class stripeManager{
          * Works as a queue, however, we do dequeue operation when the stripe is
          * "striped".
          */
-        int pushStripe(stripe* str);
+        int pushStripe(stripe* str,double time);
         stripe* popStripe();
 
         /* These two updates storage capacity status of node and rack */
@@ -54,14 +59,19 @@ class stripeManager{
         int addECStripe(int*,int*);
     public:
         stripeManager(config* c);
-        stripe* write();
+        stripe* write(double time);
         int showNodeCapacity();
         int showRackCapacity();
         /* 
          * TODO:Test only, restore the one as private function after combined with
          * CSIM
+         *
+         * Feb 26th, 2014: we do not use this function ...
          */
         int strOp();
+
+        int* stripeAStripe();
+        double getNextTime(){return _stripeQueue->_sTime;};
 };
 
 #endif

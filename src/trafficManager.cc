@@ -12,11 +12,15 @@ trafficManager::trafficManager(config* c){
     _nodeTree->setBandwidth(_bandwidth);
     _strM=new stripeManager(c);
 
+    _writeCounter=0;
+    _stripeCounter=0;
+    _bgCounter=0;
+
     create("traM");
     printf("trafficManager::trafficManager() starts\n");
-    test();
-    //write();
-    //stripe();
+    //test();
+    write();
+    stripe();
     //bgTraffic();
     hold(10000);
 }
@@ -32,31 +36,48 @@ void trafficManager::test(){
 void trafficManager::write(){
     create("write");
     while(1){
-        int* loc=_strM->write()->getLoc();
+        int* loc=_strM->write(simtime())->getLoc();
         writeOp(loc);
         /* TODO: add some distribution */
-        hold(100);
+        hold(5);
     }
     return;
 }
 
 void trafficManager::writeOp(int* loc){
     create("writeOp");
+    int wID=_writeCounter;
+    _writeCounter++;
     double startTime=simtime();
-    fprintf(stdout,"write op: starts at %lf",startTime);
     for(int i=0;i<_ecK;i++){
         //TODO: add write into system
         _nodeTree->dataTransfer(loc[1],loc[0],_blockSize);
         _nodeTree->dataTransfer(loc[2],loc[1],_blockSize);
         loc+=3;
     }
-    fprintf(stdout,"write op: ends at %lf",simtime());
+    //fprintf(stdout,"write op %d: starts at %lf\n",wID,startTime);
+    //fprintf(stdout,"write op %d: ends at %lf\n",wID,simtime());
+    fprintf(stdout,"write op %d: duration %lf\n",wID,simtime()-startTime);
+    return;
+}
+
+void trafficManager::stripe(){
+    create("stripe");
+    while(1){
+        int* loc=_strM->stripeAStripe();
+        /*
+         * TODO: add Core-rack support
+         */
+        //stripeOp(loc,loc+_repFac*_ecK);
+        free(loc);
+    }
     return;
 }
 
 void trafficManager::stripeOp(int* repLoc,int* ecLoc,int opNode){
     create("stripeOp");
-    fprintf(stdout,"stripe op: starts at %lf",startTime);
+    double startTime=simtime();
+    fprintf(stdout,"stripe op: starts at %lf\n",startTime);
     /* do download */
     for(int i=0;i<_ecK;i++){
         int* repPos=repLoc+i*_repFac;
@@ -71,9 +92,13 @@ void trafficManager::stripeOp(int* repLoc,int* ecLoc,int opNode){
       computation cost. */
     /* write parities */
     for(int i=_ecK;i<_ecN;i++){
-        _nodeTree->dataTransfer(,opNode,_blockSize);
+        _nodeTree->dataTransfer(ecLoc[i],opNode,_blockSize);
     }
-    /* re-allocation, if necessary */
+    return;
+    /* 
+     * re-allocation, if necessary
+     * Feb 26th, 2014 RH: Let us do not consider re-allocation for now.
+     */
     if(_repPlaPolicy==0){
         for(int i=0;i<_ecK;i++){
             int* repPos=repLoc+i*_repFac;
@@ -94,6 +119,13 @@ void trafficManager::stripeOp(int* repLoc,int* ecLoc,int opNode){
     fprintf(stdout,"stripe op: ends at %lf",simtime());
     return;
 }
+
+void trafficManager::bgOp(int des,int src,double size){
+    create("bgOp");
+    _nodeTree->dataTransfer(des,src,size);
+    return;
+}
+
 
 
 

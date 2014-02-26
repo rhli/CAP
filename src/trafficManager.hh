@@ -23,6 +23,10 @@ class trafficManager{
         int _repFac;
         int _repPlaPolicy;
 
+        int _writeCounter;
+        int _stripeCounter;
+        int _bgCounter;
+
         /*
          * We have three data streams here (Not sure whether the word stream is precise here..)
          * 1. A write stream follow some distribution
@@ -35,6 +39,7 @@ class trafficManager{
 
         void writeOp(int*);
         void stripeOp(int*,int*,int);
+        void bgOp(int,int,double);
     public:
         trafficManager(config*);
         /* Just for testing purpose on whether NodeTree is performing well */
