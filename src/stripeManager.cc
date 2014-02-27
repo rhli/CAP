@@ -11,6 +11,7 @@ stripeManager::stripeManager(config* c){
     _repFac=_conf->getReplicaNum();
     _ecN=_conf->getEcN();
     _ecK=_conf->getEcK();
+    _stripeInterval=100;
 
     _blockCountInNode=(int*)calloc(_nodeNum,sizeof(int));
     _blockCountInRack=(int*)calloc(_rackNum,sizeof(int));
@@ -49,30 +50,30 @@ stripe* stripeManager::popStripe(){
     return retVal;
 }
 
-int stripeManager::strOp(){
-    stripe* str;
-    while((str=popStripe())!=NULL){
-        //TODO: do striping ...
-        int* loc=str->getLoc();
-        //for(int i=0;i<_ecK*_repFac;i++){
-        //    printf(i%3==0?"%4d":"%3d",loc[i]);
-        //}
-        //printf("\n");
-        int* output=(int*)calloc(_ecN,sizeof(int));
-        _striping->strOp(loc,output);
-        str->setLoc(output);
-        /* Numerical job */
-        for(int i=0;i<_ecK*_repFac;i++){
-            _blockCountInNode[loc[i]]--;
-        }
-        for(int i=0;i<_ecN;i++){
-            //printf("%3d",output[i]);
-            _blockCountInNode[output[i]]++;
-        }
-        free(loc);
-    }
-    return 0;
-}
+//int stripeManager::strOp(){
+//    stripe* str;
+//    while((str=popStripe())!=NULL){
+//        //TODO: do striping ...
+//        int* loc=str->getLoc();
+//        //for(int i=0;i<_ecK*_repFac;i++){
+//        //    printf(i%3==0?"%4d":"%3d",loc[i]);
+//        //}
+//        //printf("\n");
+//        int* output=(int*)calloc(_ecN,sizeof(int));
+//        _striping->strOp(loc,output);
+//        str->setLoc(output);
+//        /* Numerical job */
+//        for(int i=0;i<_ecK*_repFac;i++){
+//            _blockCountInNode[loc[i]]--;
+//        }
+//        for(int i=0;i<_ecN;i++){
+//            //printf("%3d",output[i]);
+//            _blockCountInNode[output[i]]++;
+//        }
+//        free(loc);
+//    }
+//    return 0;
+//}
 
 stripe* stripeManager::write(double time){
     stripe* retVal=new stripe(_conf);
@@ -112,17 +113,20 @@ int stripeManager::showRackCapacity(){
     return 0;
 }
 
-int* stripeManager::stripeAStripe(){
+int stripeManager::stripeAStripe(int* retVal){
     stripe* str=popStripe();
     if(str==NULL){
-        return NULL;
+        retVal=NULL;
+        return -1;
     }
-    int* retVal=(int*)calloc(_repFac*_ecK+_ecN+1,sizeof(int));
+    //puts("stripeManager::stripeAStripe() 1");
     int* loc=str->getLoc();
     int* output=(int*)calloc(_ecN,sizeof(int));
     _striping->strOp(loc,output);
     memcpy((char*)retVal,(char*)loc,_repFac*_ecK*sizeof(int));
     memcpy((char*)retVal+_repFac*_ecK*sizeof(int),(char*)output,_ecN*sizeof(int));
+    //puts("stripeManager::stripeAStripe() 2");
+    retVal[_repFac*_ecK+_ecN]=str->getCoreRack();
     //str->setLoc(output);
     //delete(str);
     /* Numerical job */
@@ -133,9 +137,18 @@ int* stripeManager::stripeAStripe(){
         //printf("%3d",output[i]);
         _blockCountInNode[output[i]]++;
     }
-    free(loc);
-    free(output);
-    return retVal;
+    //free(loc);
+    //free(output);
+    //puts("stripeManager::stripeAStripe() 3");
+    return 0;
+}
+
+double stripeManager::getNextTime(){
+    if(_stripeQueue==NULL){
+        return -1;
+    }else{
+        return _stripeQueue->_sTime;
+    }
 }
 
 

@@ -70,8 +70,8 @@ class stripeManager{
          */
         int strOp();
 
-        int* stripeAStripe();
-        double getNextTime(){return _stripeQueue->_sTime;};
+        int stripeAStripe(int*);
+        double getNextTime();
 };
 
 #endif

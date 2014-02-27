@@ -12,9 +12,11 @@
 
 extern "C" void sim(int argc,char** argv){
     create("sim");
+    max_facilities(10000);
+    max_processes(10000);
     config* conf=new config();
     trafficManager* traM=new trafficManager(conf);
-    hold(10000);
+    hold(11000);
     //stripeManager *strM=new stripeManager(conf);
     //for(int i=0;i<100;i++){
     //    strM->write();

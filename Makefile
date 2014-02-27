@@ -2,7 +2,7 @@ CC = ./csim.gpp
 OBJ_DIR = obj
 SRC_DIR = src
 #CFLAG = -O3
-CFLAG = 
+CFLAG = -Wall
 
 all: main
 

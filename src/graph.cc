@@ -267,8 +267,8 @@ int graph::maxFlow(){
             edgeCount++;
         }
         retVal+=minCap;
-        free(_path);
-        _path=NULL;
+        //free(_path);
+        //_path=NULL;
         //break;
         //showResMat();
     }
@@ -301,7 +301,7 @@ int graph::incrementalMaxFlow(){
             edgeCount++;
         }
         retVal+=minCap;
-        free(_path);
+        //free(_path);
         _path=NULL;
         //break;
         //showResMat();

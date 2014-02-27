@@ -5,11 +5,13 @@
 #include "stripeManager.hh"
 #include "NodeTree.hh"
 #include "stripe.hh"
+#include "randomGen.hh"
 
 class trafficManager{
         stripeManager* _strM;
         NodeTree* _nodeTree;
         config* _conf;
+        randomGen* _randGen;
         
         /*
          * Basic system settings
@@ -24,7 +26,11 @@ class trafficManager{
         int _repPlaPolicy;
 
         int _writeCounter;
+        int _completedWriteCounter;
+        double _wholeWriteTime;
         int _stripeCounter;
+        int _completedStripeCounter;
+        double _wholeStripeTime;
         int _bgCounter;
 
         /*

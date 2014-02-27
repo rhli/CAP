@@ -12,7 +12,7 @@ class vertexInfo{
         int _outDegree;
     public:
         vertexInfo(){_vertexID=-1;_inDegree=0;_outDegree=0;}
-        int setVertexID(int id){_vertexID=id;};
+        int setVertexID(int id){_vertexID=id;return 0;};
         int getVertexID(){return _vertexID;};
         int inDegreeInc(){_inDegree++;return 0;};
         int inDegreeDec(){_inDegree--;return 0;};
@@ -25,7 +25,7 @@ class vertexInfo{
         int noInEdge(){return _inDegree==0?1:0;};
         int noOutEdge(){return _outDegree==0?1:0;};
         int isFree(){return noInEdge()|noOutEdge();};
-        int reset(){_vertexID=-1;_inDegree=0;_outDegree=0;};
+        int reset(){_vertexID=-1;_inDegree=0;_outDegree=0;return 0;};
 };
 
 /*

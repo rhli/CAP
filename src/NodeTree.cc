@@ -189,6 +189,18 @@ int* NodeTree::getPath(int des,int src){
 }
 
 int NodeTree::dataTransfer(int des,int src,double amount){
+    //printf("NodeTree::dataTransfer(): %d %d %lf\n",des,src,amount);
+    if(des==src){
+        return 0;
+    }
+    if(des<0||des>=_leafNum){
+        fprintf(stderr,"NodeTree::dataTransfer(): out of index\n");
+        return 0;
+    }
+    if(src<0||src>=_leafNum){
+        fprintf(stderr,"NodeTree::dataTransfer(): out of index\n");
+        return 0;
+    }
     if(amount==0){
         return 0;
     }
@@ -210,6 +222,7 @@ int NodeTree::dataTransfer(int des,int src,double amount){
         int switchNum=path[0]-2;
         int toTop=(switchNum-1)/2;
         int fromTop=(switchNum-1)/2;
+        _switchList[path[2+toTop]]->reservePath(path[3+toTop],path[1+toTop]);
         for(int i=0;i<toTop;i++){
             //_switchList[path[2+i]]->transferData(-1,path[1+i],tAmount);
             _switchList[path[2+i]]->reservePath(-1,path[1+i]);
@@ -219,7 +232,6 @@ int NodeTree::dataTransfer(int des,int src,double amount){
             //_switchList[path[path[0]-1-i]]->transferData(path[path[0]-i],-1,tAmount);
             _switchList[path[path[0]-1-i]]->reservePath(path[path[0]-i],-1);
         }
-        _switchList[path[2+toTop]]->reservePath(path[3+toTop],path[1+toTop]);
         //TODO: add some randomness here
         //if(path[path[0]]==1){
         //    hold(tAmount/specialBandwidth);
@@ -236,8 +248,10 @@ int NodeTree::dataTransfer(int des,int src,double amount){
         }
         transferedAmount+=tAmount;
     }
+    //printf("NodeTree::dataTransfer(): finished %d %d %lf\n",des,src,amount);
     //printf("from: %d to: %d amount %lf time %lf\n",src,des,amount,simtime()-startTime);
     free(path);
+    return 0;
 }
 
 int NodeTree::setHostRange(tNode* node){
@@ -278,6 +292,10 @@ int* NodeTree::getRackRange(int rackID){
 int NodeTree::getNearest(int node,int len,int* list){
     int retVal;
     tNode* t=_hostList[node];
+    //printf("%d\n",node);
+    //for(int i=0;i<len;i++){
+    //    printf(i==(len-1)?"%4d\n":"%4d",list[i]);
+    //}
     while(1){
         for(int i=0;i<len;i++){
             if(isInSwitch(list[i],t)==1){
@@ -288,6 +306,7 @@ int NodeTree::getNearest(int node,int len,int* list){
             fprintf(stderr,"NodeTree::getNearest(): no nodes\n");
             return -1;
         }
+        t=t->_parent;
     }
     /*
      * Dummy code, while not get executed
@@ -296,6 +315,7 @@ int NodeTree::getNearest(int node,int len,int* list){
 }
 
 int NodeTree::isInSwitch(int node,tNode* tn){
+    //printf("NodeTree::isInSwitch():%d %d %d\n",node,tn->_startHost,tn->_endHost);
     return (node>=tn->_startHost)&&(node<=tn->_endHost)?1:0;
 }
 

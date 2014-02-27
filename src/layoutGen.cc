@@ -57,11 +57,12 @@ int layoutGen::SOP(int* output){
     //int* retVal=(int*)calloc(_blockNum*_repFac,sizeof(int));
     int* rackInd=(int*)calloc(2,sizeof(int));
     int retVal=_randGen->generateInt(_conf->getRackNum());
-    _graph->graphInit();
+    graph* gra=new graph(_conf);
+    //_graph->graphInit();
     for(int i=0;i<_blockNum;i++){
         /* Every time, we **try** to generate a placement for ONE block. */
         while(1){
-            _graph->backGraph();
+            gra->backGraph();
             int* pos=output+i*_repFac;
             /*
              * TODO: We can give higher probability to the nodes we prefer
@@ -76,13 +77,13 @@ int layoutGen::SOP(int* output){
             for(int j=0;j<_conf->getReplicaNum();j++){
                 pos[j]+=j==0?rackInd[0]*_conf->getNodePerRack():rackInd[1]*_conf->getNodePerRack();
                 //printf("add %d %d %d\n",i,pos[j],pos[j]/_conf->getNodePerRack());
-                _graph->addEdge(i,pos[j],pos[j]/_conf->getNodePerRack());
+                gra->addEdge(i,pos[j],pos[j]/_conf->getNodePerRack());
             }
-            if(_graph->incrementalMaxFlow()==0){
+            if(gra->incrementalMaxFlow()==0){
                 for(int j=0;j<_conf->getReplicaNum();j++){
-                    _graph->removeEdge(i,pos[j],pos[j]/_conf->getNodePerRack());
+                    gra->removeEdge(i,pos[j],pos[j]/_conf->getNodePerRack());
                 }
-                _graph->restoreGraph();
+                gra->restoreGraph();
             }else{
                 break;
             }
