@@ -122,7 +122,9 @@ int stripeManager::stripeAStripe(int* retVal){
     //puts("stripeManager::stripeAStripe() 1");
     int* loc=str->getLoc();
     int* output=(int*)calloc(_ecN,sizeof(int));
+    //puts("stripeManager::stripeAStripe() 1.2");
     _striping->strOp(loc,output);
+    //puts("stripeManager::stripeAStripe() 1.5");
     memcpy((char*)retVal,(char*)loc,_repFac*_ecK*sizeof(int));
     memcpy((char*)retVal+_repFac*_ecK*sizeof(int),(char*)output,_ecN*sizeof(int));
     //puts("stripeManager::stripeAStripe() 2");
@@ -138,7 +140,7 @@ int stripeManager::stripeAStripe(int* retVal){
         _blockCountInNode[output[i]]++;
     }
     //free(loc);
-    //free(output);
+    free(output);
     //puts("stripeManager::stripeAStripe() 3");
     return 0;
 }

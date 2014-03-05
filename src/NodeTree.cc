@@ -185,6 +185,26 @@ int* NodeTree::getPath(int des,int src){
         retVal[i+1]=fromSrc[i];
         retVal[2*layer+1-i]=fromDes[i];
     }
+    free(fromSrc);
+    free(fromDes);
+    return retVal;
+}
+
+int* NodeTree::getPathToLeaf(int des){
+    int* retVal=(int*)calloc(_maxLevel+1,sizeof(int));
+    tNode* nodeDes=_hostList[des];
+    int layer=0;
+    while(1){
+        //printf("NodeTree::getPath(): des:%d src:%d\n",desID,srcID);
+        retVal[layer]=des;
+        if(nodeDes==_treeRoot){
+            break;
+        }
+        nodeDes=getParent(nodeDes);
+        des=nodeDes->_tNodeID;
+        layer++;
+    }
+    //printf("NodeTree::getPath(): layer %d \n",layer);
     return retVal;
 }
 
@@ -194,7 +214,31 @@ int NodeTree::dataTransfer(int des,int src,double amount){
         return 0;
     }
     if(des<0||des>=_leafNum){
-        fprintf(stderr,"NodeTree::dataTransfer(): out of index\n");
+        fprintf(stderr,"NodeTree::dataTransfer(): des %d out of index\n",des);
+        exit(0);
+        return 0;
+    }
+    if(src==-1){
+        int* path=getPathToLeaf(des);
+        //for(int i=0;i<_maxLevel+1;i++){
+        //    printf(i==_maxLevel?"%d\n":"%d ",path[i]);
+        //}
+        double startTime=simtime();
+        double transferedAmount=0;
+        while(transferedAmount<amount){
+            /** Do transfer */
+            double tAmount=_dataTransferOnce<amount-transferedAmount?
+                _dataTransferOnce:amount-transferedAmount;
+            for(int i=_maxLevel;i>0;i--){
+                _switchList[path[i]]->reservePath(path[i-1],-1);
+            }
+            hold(tAmount/_bandwidth);
+            for(int i=_maxLevel;i>0;i--){
+                _switchList[path[i]]->releasePath(path[i-1],-1);
+            }
+            transferedAmount+=tAmount;
+        }
+        free(path);
         return 0;
     }
     if(src<0||src>=_leafNum){
@@ -205,7 +249,7 @@ int NodeTree::dataTransfer(int des,int src,double amount){
         return 0;
     }
     int* path=getPath(des,src);
-    double specialBandwidth=10*1000000/1024/1024/8;
+    //double specialBandwidth=10*1000000/1024/1024/8;
     //for(int i=0;i<path[0];i++){
     //    printf(i==0?"Path: %d":" %d",path[i+1]);
     //}

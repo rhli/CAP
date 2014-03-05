@@ -41,6 +41,7 @@ class layoutGen{
         int randomPla(int*);
         /* stripe-oriented placement */
         int SOP(int*);
+        int coreRackOnly(int*);
         int showPlacement(int*);
         int examinePla(int*);
         int setRandomGen(randomGen* rg){_randGen=rg;return 0;};

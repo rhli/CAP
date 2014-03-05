@@ -44,6 +44,23 @@ int layoutGen::randomPla(int* output){
     return 0;
 }
 
+int layoutGen::coreRackOnly(int* output){
+    int* rackInd=(int*)calloc(2,sizeof(int));
+    rackInd[0]=_randGen->generateInt(_conf->getRackNum());
+    for(int i=0;i<_blockNum;i++){
+        int* pos=output+i*_conf->getReplicaNum();
+        while((rackInd[1]=_randGen->generateInt(_conf->getRackNum()))==rackInd[0]);
+        _randGen->generateList(_conf->getNodePerRack(),1,pos);
+        _randGen->generateList(_conf->getNodePerRack(),_conf->getReplicaNum()-1,pos+1);
+        for(int j=0;j<_conf->getReplicaNum();j++){
+            pos[j]+=j==0?rackInd[0]*_conf->getNodePerRack():rackInd[1]*_conf->getNodePerRack();
+        }
+    }
+    free(rackInd);
+    //showPlacement(retVal);
+    return 0;
+}
+
 /*
  * The return value is a matrix containing the block placement.
  * We benefit from stripe-oriented placement in two perspective:
@@ -57,12 +74,12 @@ int layoutGen::SOP(int* output){
     //int* retVal=(int*)calloc(_blockNum*_repFac,sizeof(int));
     int* rackInd=(int*)calloc(2,sizeof(int));
     int retVal=_randGen->generateInt(_conf->getRackNum());
-    graph* gra=new graph(_conf);
-    //_graph->graphInit();
+    //graph* gra=new graph(_conf);
+    _graph->graphInit();
     for(int i=0;i<_blockNum;i++){
         /* Every time, we **try** to generate a placement for ONE block. */
         while(1){
-            gra->backGraph();
+            _graph->backGraph();
             int* pos=output+i*_repFac;
             /*
              * TODO: We can give higher probability to the nodes we prefer
@@ -77,13 +94,13 @@ int layoutGen::SOP(int* output){
             for(int j=0;j<_conf->getReplicaNum();j++){
                 pos[j]+=j==0?rackInd[0]*_conf->getNodePerRack():rackInd[1]*_conf->getNodePerRack();
                 //printf("add %d %d %d\n",i,pos[j],pos[j]/_conf->getNodePerRack());
-                gra->addEdge(i,pos[j],pos[j]/_conf->getNodePerRack());
+                _graph->addEdge(i,pos[j],pos[j]/_conf->getNodePerRack());
             }
-            if(gra->incrementalMaxFlow()==0){
+            if(_graph->incrementalMaxFlow()==0){
                 for(int j=0;j<_conf->getReplicaNum();j++){
-                    gra->removeEdge(i,pos[j],pos[j]/_conf->getNodePerRack());
+                    _graph->removeEdge(i,pos[j],pos[j]/_conf->getNodePerRack());
                 }
-                gra->restoreGraph();
+                _graph->restoreGraph();
             }else{
                 break;
             }

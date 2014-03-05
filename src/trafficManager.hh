@@ -27,11 +27,16 @@ class trafficManager{
 
         int _writeCounter;
         int _completedWriteCounter;
-        double _wholeWriteTime;
+        double _wholeWriteThpt;
         int _stripeCounter;
         int _completedStripeCounter;
-        double _wholeStripeTime;
-        int _bgCounter;
+        double _wholeStripeThpt;
+        int _bgInterCounter;
+        int _completedBgInterCounter;
+        double _wholeBgInterThpt;
+        int _bgIntraCounter;
+        int _completedBgIntraCounter;
+        double _wholeBgIntraThpt;
 
         /*
          * We have three data streams here (Not sure whether the word stream is precise here..)
@@ -45,7 +50,7 @@ class trafficManager{
 
         void writeOp(int*);
         void stripeOp(int*,int*,int);
-        void bgOp(int,int,double);
+        void bgOp(int,int,double,int);
     public:
         trafficManager(config*);
         /* Just for testing purpose on whether NodeTree is performing well */

@@ -59,6 +59,8 @@ class NodeTree{
 
         /* detect whether within the range of a switch */
         int isInSwitch(int node,tNode* tn);
+        /* from root to a leaf */
+        int* getPathToLeaf(int des);
 
     public:
         NodeTree(int leafNum,int maxChild);

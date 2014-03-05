@@ -26,6 +26,7 @@ graph::graph(config* conf){
         _rackInd[i]=new vertexInfo();
     }
     _vertexColor=(int*)calloc(_vertexNum,sizeof(int));
+    _path=(int*)calloc(_vertexNum,sizeof(int));
     _veGraph=NULL;
     _resGraph=NULL;
     _backVeGraph=NULL;
@@ -82,8 +83,10 @@ int graph::graphInit(){
         }
     }
     for(int i=0;i<_rackNum;i++){
-        _veGraph[(i+_rackOffset)*_vertexNum+_vertexNum-1]=_maxInRack;
-        _resGraph[(i+_rackOffset)*_vertexNum+_vertexNum-1]=_maxInRack;
+        //_veGraph[(i+_rackOffset)*_vertexNum+_vertexNum-1]=_maxInRack;
+        //_resGraph[(i+_rackOffset)*_vertexNum+_vertexNum-1]=_maxInRack;
+        _veGraph[(i+_rackOffset)*_vertexNum+_vertexNum-1]=1;
+        _resGraph[(i+_rackOffset)*_vertexNum+_vertexNum-1]=1;
     }
     return 0;
 }
@@ -267,8 +270,8 @@ int graph::maxFlow(){
             edgeCount++;
         }
         retVal+=minCap;
-        //free(_path);
-        //_path=NULL;
+        free(_path);
+        _path=NULL;
         //break;
         //showResMat();
     }
@@ -301,7 +304,7 @@ int graph::incrementalMaxFlow(){
             edgeCount++;
         }
         retVal+=minCap;
-        //free(_path);
+        free(_path);
         _path=NULL;
         //break;
         //showResMat();

@@ -6,7 +6,8 @@ striping::striping(config* conf){
     _ecK=_conf->getEcK();
     _rackOcp=NULL;
     _repFac=_conf->getReplicaNum();
-    _maxInRack=_ecN-_ecK;
+    //_maxInRack=_ecN-_ecK;
+    _maxInRack=1;
     _graph=new graph(_conf);
 }
 
@@ -14,17 +15,23 @@ int striping::strOp(int* input,int* output){
     int rackNum=_conf->getRackNum();
     _rackOcp=(int*)calloc(rackNum,sizeof(int));
     _graph->graphInit();
+    //puts("strOp 1");
+    //graph* gra=new graph(_conf);
     //printf("replication placement: %d\n",_repFac);
     //for(int i=0;i<_repFac*_ecK;i++){
     //    printf(i==_ecK*_repFac-1?"%4d\n":"%4d",input[i]);
     //}
     _graph->initFromPla(input);
+    //puts("strOp 2");
+    //gra->initFromPla(input);
     /*
      * RH: Jan 23th, 2014
      * TODO: we can manipulate the location of the reserved copy.
      * However, currently we use a most naive approach.
      */
     _graph->getMaxMatch(output);
+    //puts("strOp 3");
+    //gra->getMaxMatch(output);
     for(int i=0;i<_ecK;i++){
         if(output[i]!=-1){
             _rackOcp[output[i]/_conf->getNodePerRack()]++;
@@ -37,6 +44,7 @@ int striping::strOp(int* input,int* output){
     /*
      * determine the location of parities or re-allocated native blocks
      */
+    //puts("strOp 4");
     for(int i=0;i<_ecN;i++){
         if(output[i]!=-1){
             continue;
@@ -67,10 +75,13 @@ int striping::strOp(int* input,int* output){
         output[i]=nodePos+rackPos*_conf->getNodePerRack();
         _rackOcp[rackPos]++;
     }
+    //puts("strOp 5");
     for(int i=0;i<_ecN;i++){
-        //printf(i==_ecN-1?"%4d\n":"%4d",output[i]);
-        _rackOcp[output[i]/_maxInRack]++;
+        //printf(i==_ecN-1?"%4d\n":"%4d",output[i]/_maxInRack);
+        _rackOcp[output[i]/_conf->getRackNum()]++;
     }
+    //puts("strOp 6");
+    return 0;
 }
 
 
