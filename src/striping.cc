@@ -78,7 +78,7 @@ int striping::strOp(int* input,int* output){
     //puts("strOp 5");
     for(int i=0;i<_ecN;i++){
         //printf(i==_ecN-1?"%4d\n":"%4d",output[i]/_maxInRack);
-        _rackOcp[output[i]/_conf->getRackNum()]++;
+        _rackOcp[output[i]/_conf->getNodePerRack()]++;
     }
     //puts("strOp 6");
     return 0;

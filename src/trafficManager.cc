@@ -78,9 +78,10 @@ void trafficManager::writeOp(int* loc){
     }
     //fprintf(stdout,"write op %d: starts at %lf\n",wID,startTime);
     //fprintf(stdout,"write op %d: ends at %lf\n",wID,simtime());
-    fprintf(stdout,"write op %d: thpt %lf\n",wID,simtime()-startTime);
+    fprintf(stdout,"write op %d: thpt %lf\n",wID,_ecK*_blockSize/(simtime()-startTime));
     _wholeWriteThpt+=_ecK*_blockSize/(simtime()-startTime);
     _completedWriteCounter++;
+    //free(loc);
     return;
 }
 
@@ -185,7 +186,7 @@ void trafficManager::stripeOp(int* repLoc,int* ecLoc,int opNode){
         }
     }
     //fprintf(stdout,"stripe op: ends at %lf",simtime());
-    fprintf(stdout,"stripe op %d: thpt %lf\n",sID,simtime()-startTime);
+    fprintf(stdout,"stripe op %d: thpt %lf\n",sID,_ecK*_blockSize/(simtime()-startTime));
     _wholeStripeThpt+=_ecK*_blockSize/(simtime()-startTime);
     _completedStripeCounter++;
     free(repLoc);

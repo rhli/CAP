@@ -130,7 +130,7 @@ int stripeManager::stripeAStripe(int* retVal){
     //puts("stripeManager::stripeAStripe() 2");
     retVal[_repFac*_ecK+_ecN]=str->getCoreRack();
     //str->setLoc(output);
-    //delete(str);
+    delete(str);
     /* Numerical job */
     for(int i=0;i<_ecK*_repFac;i++){
         _blockCountInNode[loc[i]]--;

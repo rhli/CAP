@@ -11,12 +11,12 @@
 #include "cpp.h"
 
 extern "C" void sim(int argc,char** argv){
-    create("sim");
-    config* conf=new config();
-    max_facilities(10000);
-    max_processes(10000);
-    trafficManager* traM=new trafficManager(conf);
-    hold(3601);
+    //create("sim");
+    //config* conf=new config();
+    //max_facilities(10000);
+    //max_processes(10000);
+    //trafficManager* traM=new trafficManager(conf);
+    //hold(3601);
 
     //workloadGen* wGen=new workloadGen(conf);
     //hold(11000);
@@ -30,19 +30,20 @@ extern "C" void sim(int argc,char** argv){
     //strM->showNodeCapacity();
     //
 
-    //config* conf=new config();
-    //layoutGen* layG=new layoutGen(100,conf);
-    //randomGen* rg=new randomGen();
-    //layG->setRandomGen(rg);
-    //int* output=(int*)calloc(conf->getEcK()*conf->getReplicaNum(),sizeof(int));
-    //int retVal=0;
-    //for(int i=0;i<10000;i++){
-    //    rg->resetSeed(i);
-    //    //layG->setRandomGen(rg);
-    //    //layG->randomPla(output);
-    //    layG->coreRackOnly(output);
-    //    retVal+=layG->examinePla(output);
-    //}
+    config* conf=new config();
+    layoutGen* layG=new layoutGen(100,conf);
+    randomGen* rg=new randomGen();
+    layG->setRandomGen(rg);
+    int* output=(int*)calloc(conf->getEcK()*conf->getReplicaNum(),sizeof(int));
+    int retVal=0;
+    for(int i=0;i<10000;i++){
+        rg->resetSeed(i);
+        //layG->setRandomGen(rg);
+        //layG->randomPla(output);
+        layG->SOP(output);
+        //layG->coreRackOnly(output);
+        //retVal+=layG->examinePla(output);
+    }
     //printf("%d\n",retVal);
 
     //int* pla=layG->SOP();

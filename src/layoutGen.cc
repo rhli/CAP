@@ -78,7 +78,13 @@ int layoutGen::SOP(int* output){
     _graph->graphInit();
     for(int i=0;i<_blockNum;i++){
         /* Every time, we **try** to generate a placement for ONE block. */
+        int index=0;
         while(1){
+            index++;
+            if(index>=11){
+                printf("give up\n");
+                return retVal;
+            }
             _graph->backGraph();
             int* pos=output+i*_repFac;
             /*
@@ -105,6 +111,7 @@ int layoutGen::SOP(int* output){
                 break;
             }
         }
+        //printf("iteration:%d\n",index);
     }
     free(rackInd);
     return retVal;
