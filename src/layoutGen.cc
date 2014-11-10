@@ -81,10 +81,10 @@ int layoutGen::SOP(int* output){
         int index=0;
         while(1){
             index++;
-            if(index>=11){
-                printf("give up\n");
-                return retVal;
-            }
+            //if(index>=11){
+            //    printf("give up\n");
+            //    return retVal;
+            //}
             _graph->backGraph();
             int* pos=output+i*_repFac;
             /*

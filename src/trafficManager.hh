@@ -45,7 +45,8 @@ class trafficManager{
          * 3. A background traffic stream
          */
         void write();
-        void stripe();
+        void stripe(int);
+        void stripeMap(int,int);
         void bgTraffic();
 
         void writeOp(int*);

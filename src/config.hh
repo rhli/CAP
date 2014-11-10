@@ -7,6 +7,7 @@
 #include <cstring>
 
 class config{
+    public:
         int _rackNum;
         int _nodePerRack;
         int _nodeNum;
@@ -18,7 +19,13 @@ class config{
         double _bandwidth;
         int _blockSize;
 
-    public:
+        // workload related
+        double _writeInterval;
+        double _inClusWritePercent;
+        double _bgTrafficInterval;
+        double _inRackTrafficPercent;
+        int _encodingStripeCount;
+
         config();
         int getRackNum(){return _rackNum;};
         int getNodePerRack(){return _nodePerRack;};
