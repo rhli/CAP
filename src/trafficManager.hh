@@ -50,6 +50,7 @@ class trafficManager{
         void bgTraffic();
 
         void writeOp(int*);
+        void inClusWriteOp(int*);
         void stripeOp(int*,int*,int);
         void bgOp(int,int,double,int);
     public:
