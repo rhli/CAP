@@ -22,7 +22,7 @@ extern "C" void sim(int argc,char** argv){
     max_facilities(10000);
     max_processes(10000);
     trafficManager* traM=new trafficManager(conf);
-    hold(3601);
+    hold(401);
 
     //workloadGen* wGen=new workloadGen(conf);
     //hold(11000);

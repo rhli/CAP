@@ -27,18 +27,19 @@ trafficManager::trafficManager(config* c){
   _wholeBgIntraThpt=0;
 
   create("traM");
-  //printf("trafficManager::trafficManager() starts\n");
-  //test();
-  //hold(1);
+  //stream *s=new stream();
+  //double prev=0;
+  //while(simtime()<360) {
+  //  hold(s->exponential(2));
+  //  printf("%.1lf\,",simtime()-prev);
+  //  prev=simtime();
+  //}
+
   write();
-  bgTraffic();
-  hold(200);
+  //bgTraffic();
+  hold(30);
   stripe(_conf->_encodingStripeCount);
-  hold(3400);
-  //printf("write Average:%lf\n",_wholeWriteThpt/_completedWriteCounter);
-  //printf("stripe Average:%lf\n",_wholeStripeThpt/_completedStripeCounter);
-  //printf("bgInter Average:%lf\n",_wholeBgInterThpt/_completedBgInterCounter);
-  //printf("bgIntra Average:%lf\n",_wholeBgIntraThpt/_completedBgIntraCounter);
+  hold(370);
 }
 
 void trafficManager::test(){
@@ -149,8 +150,10 @@ void trafficManager::stripe(int stripeCount){
     if(_conf->getRepPlaPolicy()==1){
       stripeMap(i*_conf->getNodePerRack()+_randGen->generateInt(_conf->getNodePerRack()),
           rackStripeCount[i]);
+      //stripeMap(i*_conf->getNodePerRack()+_randGen->generateInt(_conf->getNodePerRack()),
+      //    stripeCount/_conf->getRackNum());
     }else{
-      stripeMap(_randGen->generateInt(_conf->getNodeNum()),rackStripeCount[i]);
+      stripeMap(_randGen->generateInt(_conf->getNodeNum()),stripeCount/_conf->getRackNum());
     }
     //fprintf(stdout,"stripe count:%d %d\n",i,rackStripeCount[i]);
     hold(0.5);
@@ -221,7 +224,7 @@ void trafficManager::stripeMap(int id,int size){
     _wholeStripeThpt+=simtime()-startTime;
     fprintf(stdout,"stripeOp: begins %lf ends %lf\n",startTime,simtime());
     /* hold some time for other overhead */
-    hold(1);
+    hold(2);
     free(repLocs);
   }
 }

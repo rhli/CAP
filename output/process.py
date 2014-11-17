@@ -40,7 +40,7 @@ np.set_printoptions(precision=2)
 for item in writeRange :
   item = np.array(item)
   #print item
-  print "%.2f" % item[0] + " " + "%.2f" % (item[1] - item[0])
+  #print "%.2f" % item[0] + "," + "%.2f" % (item[1] - item[0])
   if item[1] <= endTime and item[0] >= startTime:
     writeSum = writeSum + item[1] - item[0]
     writeCount = writeCount + 1

@@ -83,10 +83,10 @@ int graph::graphInit(){
         }
     }
     for(int i=0;i<_rackNum;i++){
-        //_veGraph[(i+_rackOffset)*_vertexNum+_vertexNum-1]=_maxInRack;
-        //_resGraph[(i+_rackOffset)*_vertexNum+_vertexNum-1]=_maxInRack;
-        _veGraph[(i+_rackOffset)*_vertexNum+_vertexNum-1]=1;
-        _resGraph[(i+_rackOffset)*_vertexNum+_vertexNum-1]=1;
+        _veGraph[(i+_rackOffset)*_vertexNum+_vertexNum-1]=_maxInRack;
+        _resGraph[(i+_rackOffset)*_vertexNum+_vertexNum-1]=_maxInRack;
+        //_veGraph[(i+_rackOffset)*_vertexNum+_vertexNum-1]=1;
+        //_resGraph[(i+_rackOffset)*_vertexNum+_vertexNum-1]=1;
     }
     return 0;
 }
