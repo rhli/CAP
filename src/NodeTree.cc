@@ -13,6 +13,7 @@ NodeTree::NodeTree(int leafNum,int maxChild){
     _leafNum=leafNum;
     _maxDegree=maxChild;
     tNode** lastLevel=NULL;
+    facility_ms** _nodeDisk;
     int level=0;
     int levelNodeNum=leafNum;
     int lastLevelNum=0;
