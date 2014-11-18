@@ -24,6 +24,8 @@ NodeTree::NodeTree(int leafNum,int maxChild){
             _hostList=levelList;
         }else if(level==1){
             _rackList=levelList;
+        }else{
+          ;
         }
         for(int i=0;i<levelNodeNum;i++){
             /** the start and end index of this node */
