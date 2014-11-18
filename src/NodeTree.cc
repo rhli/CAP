@@ -13,7 +13,6 @@ NodeTree::NodeTree(int leafNum,int maxChild){
     _leafNum=leafNum;
     _maxDegree=maxChild;
     tNode** lastLevel=NULL;
-    facility_ms** _nodeDisk;
     int level=0;
     int levelNodeNum=leafNum;
     int lastLevelNum=0;
@@ -71,7 +70,12 @@ NodeTree::NodeTree(int leafNum,int maxChild){
     }
     _maxLevel=level;
     //puts("NodeTree initialized");
-    _dataTransferOnce=0.1;
+    //_dataTransferOnce=0.1;
+    _dataTransferOnce=0.01;
+    _nodeDisk=(facility_ms**)calloc(_leafNum,sizeof(facility_ms*));
+    for(int i=0;i<_leafNum;i++) {
+      _nodeDisk[i]=new facility_ms("disk",2);
+    }
 
     nameSwitches();
     setSwitches(_treeRoot);
@@ -214,7 +218,19 @@ int* NodeTree::getPathToLeaf(int des){
 int NodeTree::dataTransfer(int des,int src,double amount){
     //printf("NodeTree::dataTransfer(): %d %d %lf\n",des,src,amount);
     if(des==src){
-        return 0;
+      double transferedAmount=0;
+      //int startTime=simtime();
+      while(transferedAmount<amount){
+          /** Do transfer */
+          double tAmount=_dataTransferOnce<amount-transferedAmount?
+              _dataTransferOnce:amount-transferedAmount;
+          _nodeDisk[des]->reserve();
+          hold(tAmount/_bandwidth);
+          _nodeDisk[des]->release();
+          transferedAmount+=tAmount;
+      }
+      //printf("sameNodeTrans:%lf\n",simtime()-startTime);
+      return 0;
     }
     if(des<0||des>=_leafNum){
         fprintf(stderr,"NodeTree::dataTransfer(): des %d out of index\n",des);
@@ -226,7 +242,6 @@ int NodeTree::dataTransfer(int des,int src,double amount){
         //for(int i=0;i<_maxLevel+1;i++){
         //    printf(i==_maxLevel?"%d\n":"%d ",path[i]);
         //}
-        double startTime=simtime();
         double transferedAmount=0;
         while(transferedAmount<amount){
             /** Do transfer */
@@ -235,10 +250,14 @@ int NodeTree::dataTransfer(int des,int src,double amount){
             for(int i=_maxLevel;i>0;i--){
                 _switchList[path[i]]->reservePath(path[i-1],-1);
             }
+            _nodeDisk[des]->reserve();
+            _nodeDisk[src]->reserve();
             hold(tAmount/_bandwidth);
             for(int i=_maxLevel;i>0;i--){
                 _switchList[path[i]]->releasePath(path[i-1],-1);
             }
+            _nodeDisk[des]->release();
+            _nodeDisk[src]->release();
             transferedAmount+=tAmount;
         }
         free(path);
@@ -257,7 +276,6 @@ int NodeTree::dataTransfer(int des,int src,double amount){
     //    printf(i==0?"Path: %d":" %d",path[i+1]);
     //}
     //printf("\n");
-    double startTime=simtime();
     double transferedAmount=0;
     while(transferedAmount<amount){
         //printf("NodeTree::dataTransfer():%lf transferred at %lf\n",transferedAmount,simtime());
@@ -279,6 +297,7 @@ int NodeTree::dataTransfer(int des,int src,double amount){
             //_switchList[path[path[0]-1-i]]->transferData(path[path[0]-i],-1,tAmount);
             _switchList[path[path[0]-1-i]]->reservePath(path[path[0]-i],-1);
         }
+        _nodeDisk[des]->reserve();
         //TODO: add some randomness here
         //if(path[path[0]]==1){
         //    hold(tAmount/specialBandwidth);
@@ -293,6 +312,7 @@ int NodeTree::dataTransfer(int des,int src,double amount){
         for(int i=0;i<fromTop;i++){
             _switchList[path[path[0]-1-i]]->releasePath(path[path[0]-i],-1);
         }
+        _nodeDisk[des]->release();
         transferedAmount+=tAmount;
     }
     //printf("NodeTree::dataTransfer(): finished %d %d %lf\n",des,src,amount);

@@ -36,6 +36,8 @@ class NodeTree{
 
         int _maxLevel;
 
+        facility_ms** _nodeDisk;
+
         /* 
          * Here is how we transfer our data:
          * Every time, we transfer the amount of _dataTransferOnce

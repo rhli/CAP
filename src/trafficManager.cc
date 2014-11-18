@@ -35,9 +35,9 @@ trafficManager::trafficManager(config* c){
   //  prev=simtime();
   //}
 
-  write();
+  //write();
   //bgTraffic();
-  hold(30);
+  //hold(30);
   stripe(_conf->_encodingStripeCount);
   hold(370);
 }
@@ -57,15 +57,8 @@ void trafficManager::write(){
   s->reseed(10000);
   if(_conf->getRepPlaPolicy()!=1){
     while(1){
-      int* rackInd=(int*)calloc(2,sizeof(int));
       int* loc=(int*)calloc(_conf->getReplicaNum(),sizeof(int));
-      _randGen->generateList(_conf->getRackNum(),2,rackInd);
-      _randGen->generateList(_conf->getNodePerRack(),1,loc);
-      _randGen->generateList(_conf->getNodePerRack(),_conf->getReplicaNum()-1,loc+1);
-      for(int k=0;k<_conf->getReplicaNum();k++){
-        loc[k]+=k==0?rackInd[0]*_conf->getNodePerRack():rackInd[1]*_conf->getNodePerRack();
-      }
-      free(rackInd);
+      _randGen->generateList(_conf->getNodeNum(),2,loc);
       if (s->uniform(0,1)<_conf->_inClusWritePercent){
         inClusWriteOp(loc);
       } else {
@@ -74,28 +67,24 @@ void trafficManager::write(){
       hold(s->exponential(_conf->_writeInterval));
     }
   } else {
-    int** raidTail=(int**)calloc(_conf->getRackNum(),sizeof(int*));
-    int* raidTailIdx=(int*)calloc(_conf->getRackNum(),sizeof(int));
-    for (int i=0;i<_conf->getRackNum();i++){
+    int** raidTail=(int**)calloc(_conf->getNodeNum(),sizeof(int*));
+    int* raidTailIdx=(int*)calloc(_conf->getNodeNum(),sizeof(int));
+    for (int i=0;i<_conf->getNodeNum();i++){
       raidTail[i]=(int*)calloc(_ecK,sizeof(int));
-      _randGen->generateList(_conf->getRackNum(),_ecK,raidTail[i]);
+      _randGen->generateList(_conf->getNodeNum(),_ecK,raidTail[i]);
     }
     while(1) {
       int* loc=(int*)calloc(_conf->getReplicaNum(),sizeof(int));
-      loc[0]=_randGen->generateInt(_conf->getRackNum());
-      _randGen->generateList(_conf->getNodePerRack(),_conf->getReplicaNum()-1,loc+1);
-      for(int i=1;i<_conf->getReplicaNum();i++){
-        if(raidTail[loc[0]][raidTailIdx[loc[0]]]==loc[0]){ 
-          loc[i]+=raidTail[loc[0]][(raidTailIdx[loc[0]]+1)/_ecK]*_conf->getNodePerRack();
-        }else{
-          loc[i]+=raidTail[loc[0]][raidTailIdx[loc[0]]]*_conf->getNodePerRack();
-        }
+      loc[0]=_randGen->generateInt(_conf->getNodeNum());
+      if(raidTail[loc[0]][raidTailIdx[loc[0]]]==loc[0]){ 
+        loc[1]=raidTail[loc[0]][(raidTailIdx[loc[0]]+1)%_ecK];
+      }else{
+        loc[1]=raidTail[loc[0]][raidTailIdx[loc[0]]];
       }
       raidTailIdx[loc[0]]=(raidTailIdx[loc[0]]+1)%_ecK;
       if(raidTailIdx[loc[0]]==0) {
-        _randGen->generateList(_conf->getRackNum(),_ecK,raidTail[loc[0]]);
+        _randGen->generateList(_conf->getNodeNum(),_ecK,raidTail[loc[0]]);
       }
-      loc[0]=loc[0]*_conf->getNodePerRack()+_randGen->generateInt(_conf->getNodePerRack());
       if (s->uniform(0,1)<_conf->_inClusWritePercent){
         inClusWriteOp(loc);
       } else {
@@ -112,8 +101,8 @@ void trafficManager::inClusWriteOp(int* loc){
   _writeCounter++;
   double startTime=simtime();
   int* pos=loc;
+  _nodeTree->dataTransfer(pos[0],pos[0],_blockSize);
   _nodeTree->dataTransfer(pos[1],pos[0],_blockSize);
-  _nodeTree->dataTransfer(pos[2],pos[1],_blockSize);
   fprintf(stdout,"inClusWriteOp: begins %lf ends %lf\n",startTime,simtime());
   _wholeWriteThpt+=_ecK*_blockSize/(simtime()-startTime);
   _completedWriteCounter++;
@@ -128,7 +117,6 @@ void trafficManager::writeOp(int* loc){
   int* pos=loc;
   _nodeTree->dataTransfer(pos[0],-1,_blockSize);
   _nodeTree->dataTransfer(pos[1],pos[0],_blockSize);
-  _nodeTree->dataTransfer(pos[2],pos[1],_blockSize);
   fprintf(stdout,"writeOp: begins %lf ends %lf\n",startTime,simtime());
   _wholeWriteThpt+=_ecK*_blockSize/(simtime()-startTime);
   _completedWriteCounter++;
@@ -146,17 +134,17 @@ void trafficManager::stripe(int stripeCount){
     rackStripeCount[i]=
       rackStripeCount[i]%_ecK==0?rackStripeCount[i]/_ecK:rackStripeCount[i]/_ecK+1;
   }
-  for(int i=0;i<_conf->getRackNum();i++){
+  for(int i=0;i<_conf->getNodeNum();i++){
     if(_conf->getRepPlaPolicy()==1){
-      stripeMap(i*_conf->getNodePerRack()+_randGen->generateInt(_conf->getNodePerRack()),
-          rackStripeCount[i]);
       //stripeMap(i*_conf->getNodePerRack()+_randGen->generateInt(_conf->getNodePerRack()),
-      //    stripeCount/_conf->getRackNum());
+      //    rackStripeCount[i]);
+      stripeMap(i,stripeCount/_conf->getNodeNum());
     }else{
-      stripeMap(_randGen->generateInt(_conf->getNodeNum()),stripeCount/_conf->getRackNum());
+      stripeMap(_randGen->generateInt(_conf->getNodeNum()),stripeCount/_conf->getNodeNum());
     }
     //fprintf(stdout,"stripe count:%d %d\n",i,rackStripeCount[i]);
-    hold(0.5);
+    //hold(0.1);
+    hold(1);
   }
   hold(3600);
 }
@@ -166,65 +154,49 @@ void trafficManager::stripeMap(int id,int size){
   create("stripeMap");
   //fprintf(stdout,"stripeMap starts!\n");
   double startTime;
-  int coreRack=id/_conf->getNodePerRack();
+  int coreRack=id;
   for(int i=0;i<size;i++){
     // generate a stripe to process
     startTime=simtime();
     int* repLocs=(int*)calloc(_ecK*_repFac,sizeof(int));
     if(_conf->getRepPlaPolicy()==1){
       int* list=(int*)calloc(_ecK,sizeof(int));
-      _randGen->generateList(_conf->getRackNum(),_ecK,list);
-      int* rackInd=(int*)calloc(2,sizeof(int));
       for(int j=0;j<_ecK;j++){
-        rackInd[0]=coreRack;
-        rackInd[1]=list[j];
-        if(rackInd[1]==coreRack){
-          rackInd[1]=list[(j+1)%_ecK];
-        }
         int* pos=repLocs+j*_conf->getReplicaNum();
-        _randGen->generateList(_conf->getNodePerRack(),1,pos);
-        _randGen->generateList(_conf->getNodePerRack(),_conf->getReplicaNum()-1,pos+1);
-        for(int k=0;k<_conf->getReplicaNum();k++){
-          pos[k]+=k==0?rackInd[0]*_conf->getNodePerRack():rackInd[1]*_conf->getNodePerRack();
-        }
+        pos[0]=coreRack;
+        pos[1]=list[j]==coreRack?list[j]:list[(j+1)%_ecK];
       }
-      free(rackInd);
       free(list);
     }else{
-      int* rackInd=(int*)calloc(2,sizeof(int));
       for(int j=0;j<_ecK;j++){
         int* pos=repLocs+j*_conf->getReplicaNum();
-        _randGen->generateList(_conf->getRackNum(),2,rackInd);
-        _randGen->generateList(_conf->getNodePerRack(),1,pos);
-        _randGen->generateList(_conf->getNodePerRack(),_conf->getReplicaNum()-1,pos+1);
-        for(int k=0;k<_conf->getReplicaNum();k++){
-          pos[k]+=k==0?rackInd[0]*_conf->getNodePerRack():rackInd[1]*_conf->getNodePerRack();
-        }
-      }
-      free(rackInd);
-    }
-    for(int j=0;j<_ecK;j++){
-      int* repPos=repLocs+j*_repFac;
-      int from=_nodeTree->getNearest(id,_repFac,repPos);
-      if(from!=-1){
-        _nodeTree->dataTransfer(id,from,_blockSize);
-      }else{
-        fprintf(stderr,"trafficManager::stripeMap(): weird thing happened\n");
+        _randGen->generateList(_conf->getNodeNum(),2,pos);
       }
     }
-    /* hold some time for computation */
-    hold(1);
     int* ecLoc=(int*)calloc(_ecN-_ecK,sizeof(int));
     _randGen->generateList(_conf->getRackNum(),_ecN-_ecK,ecLoc);
-    for(int j=_ecK;j<_ecN;j++){
-      _nodeTree->dataTransfer(ecLoc[j-_ecK]*_conf->getNodePerRack()+
-          _randGen->generateInt(_conf->getNodePerRack()),
-          id,_blockSize);
+    for(int packId=0;packId<_blockSize;packId++){
+      for(int j=0;j<_ecK;j++){
+        int* repPos=repLocs+j*_repFac;
+        int from=_nodeTree->getNearest(id,_repFac,repPos);
+        if(from!=-1){
+          _nodeTree->dataTransfer(id,from,1);
+        }else{
+          fprintf(stderr,"trafficManager::stripeMap(): weird thing happened\n");
+        }
+      }
+      /* hold some time for computation */
+      hold(0.05);
+      for(int j=_ecK;j<_ecN;j++){
+        _nodeTree->dataTransfer(ecLoc[j-_ecK]*_conf->getNodePerRack()+
+            _randGen->generateInt(_conf->getNodePerRack()),
+            id,1);
+      }
     }
     _wholeStripeThpt+=simtime()-startTime;
     fprintf(stdout,"stripeOp: begins %lf ends %lf\n",startTime,simtime());
     /* hold some time for other overhead */
-    hold(2);
+    hold(3);
     free(repLocs);
   }
 }
