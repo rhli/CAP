@@ -21,6 +21,7 @@ extern "C" void sim(int argc,char** argv){
     config* conf=new config();
     max_facilities(10000);
     max_processes(100000);
+    max_events(100000);
     trafficManager* traM=new trafficManager(conf);
     hold(401);
 

@@ -70,7 +70,7 @@ NodeTree::NodeTree(int leafNum,int maxChild){
     }
     _maxLevel=level;
     //puts("NodeTree initialized");
-    _dataTransferOnce=0.1;
+    _dataTransferOnce=1;
     //_dataTransferOnce=1;
 
     nameSwitches();
@@ -220,11 +220,11 @@ int NodeTree::dataTransfer(int des,int src,double amount){
             /** Do transfer */
             double tAmount=_dataTransferOnce<amount-transferedAmount?
                 _dataTransferOnce:amount-transferedAmount;
-            _switchList[path[1]]->reservePath(-1,path[0]);
+            _switchList[path[1]]->reservePath(path[0],-1);
             //_switchList[path[1]]->reservePath(-1,path[0]);
             hold(tAmount/_bandwidth);
-            _switchList[path[1]]->releasePath(-1,path[0]);
-            //_switchList[path[1]]->reservePath(-1,path[0]);
+            _switchList[path[1]]->releasePath(path[0],-1);
+            //_switchList[path[1]]->releasePath(-1,path[0]);
             transferedAmount+=tAmount;
         }
         free(path);
