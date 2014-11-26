@@ -18,6 +18,7 @@ class config{
         int _replicaNum;
         double _bandwidth;
         int _blockSize;
+        int _randSeed;
 
         // workload related
         double _writeInterval;
@@ -25,6 +26,7 @@ class config{
         double _bgTrafficInterval;
         double _inRackTrafficPercent;
         int _encodingStripeCount;
+        int _maxInRack;
 
         config();
         int getRackNum(){return _rackNum;};

@@ -20,7 +20,7 @@ extern "C" void sim(int argc,char** argv){
     create("sim");
     config* conf=new config();
     max_facilities(10000);
-    max_processes(10000);
+    max_processes(100000);
     trafficManager* traM=new trafficManager(conf);
     hold(401);
 

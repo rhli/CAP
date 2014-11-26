@@ -1,7 +1,7 @@
 import sys
 import numpy as np
 
-inputFileName = sys.argv[1]
+#inputFileName = sys.argv[1]
 
 stripeRange=[]
 stripeDur=[]
@@ -18,7 +18,8 @@ endTime = 0
 def printAvg(arr):
   return sum(arr)/len(arr)
 
-fh = open(inputFileName,'r')
+#fh = open(inputFileName,'r')
+fh = sys.stdin
 for line in fh:
   if line.startswith("stripeOp:"):
     stripeRange.append([float(line.split()[2]),float(line.split()[4])])
@@ -32,10 +33,15 @@ for line in fh:
   elif line.startswith("inClusWriteOp:"):
     inClusWriteRange.append([float(line.split()[2]),float(line.split()[4])])
 
-fh.close()
+#fh.close()
 
-print "encoding time " + str(endTime)
+#print "encoding time " + str(endTime-startTime)
+print str(endTime-startTime)
 np.set_printoptions(precision=2)
+
+#for item in stripeRange:
+#  print "%.2f" % (item[1] - startTime)
+#print ""
 
 for item in writeRange :
   item = np.array(item)
@@ -45,15 +51,33 @@ for item in writeRange :
     writeSum = writeSum + item[1] - item[0]
     writeCount = writeCount + 1
 
+noEncWSum = 0
+noEncWCount = 0
+
 for item in inClusWriteRange :
   item = np.array(item)
   if item[1] <= endTime and item[0] >= startTime:
     inClusWriteSum = inClusWriteSum + item[1] - item[0]
     inClusWriteCount = inClusWriteCount + 1
+  else:
+    noEncWSum = noEncWSum + item[1] - item[0]
+    noEncWCount = noEncWCount + 1
 
 #print writeDur
 
-print "stripe avg: " + str(printAvg(stripeDur))
-print "write avg: " + str(writeSum/writeCount)
-print "inClusWrite avg: " + str(inClusWriteSum/inClusWriteCount)
+#print "stripe avg: " + str(printAvg(stripeDur))
+#if writeCount != 0:
+#  print "write avg: " + str(writeSum/writeCount)
+#print "inClusWrite avg: " + str(inClusWriteSum/inClusWriteCount)
+#print "outEncInClusWrite avg: " + str(noEncWSum/noEncWCount)
+
+#print str(printAvg(stripeDur))
+#if writeCount != 0:
+#  print str(writeSum/writeCount)
+if inClusWriteCount != 0:
+  print str(inClusWriteSum/inClusWriteCount)
+if noEncWCount != 0:
+  print str(noEncWSum/noEncWCount)
+
+#print ""
 

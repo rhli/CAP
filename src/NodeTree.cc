@@ -71,6 +71,7 @@ NodeTree::NodeTree(int leafNum,int maxChild){
     _maxLevel=level;
     //puts("NodeTree initialized");
     _dataTransferOnce=0.1;
+    //_dataTransferOnce=1;
 
     nameSwitches();
     setSwitches(_treeRoot);
@@ -213,6 +214,20 @@ int* NodeTree::getPathToLeaf(int des){
 int NodeTree::dataTransfer(int des,int src,double amount){
     //printf("NodeTree::dataTransfer(): %d %d %lf\n",des,src,amount);
     if(des==src){
+        int* path=getPathToLeaf(des);
+        double transferedAmount=0;
+        while(transferedAmount<amount){
+            /** Do transfer */
+            double tAmount=_dataTransferOnce<amount-transferedAmount?
+                _dataTransferOnce:amount-transferedAmount;
+            _switchList[path[1]]->reservePath(-1,path[0]);
+            //_switchList[path[1]]->reservePath(-1,path[0]);
+            hold(tAmount/_bandwidth);
+            _switchList[path[1]]->releasePath(-1,path[0]);
+            //_switchList[path[1]]->reservePath(-1,path[0]);
+            transferedAmount+=tAmount;
+        }
+        free(path);
         return 0;
     }
     if(des<0||des>=_leafNum){

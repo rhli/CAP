@@ -1,11 +1,13 @@
 #ifndef _TRAFFICMANAGER_HH_
 #define _TRAFFICMANAGER_HH_
 
+#include <cstring>
 #include "config.hh"
 #include "stripeManager.hh"
 #include "NodeTree.hh"
 #include "stripe.hh"
 #include "randomGen.hh"
+#include "layoutGen.hh"
 
 class trafficManager{
         stripeManager* _strM;

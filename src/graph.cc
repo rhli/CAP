@@ -6,7 +6,8 @@
 graph::graph(config* conf){
     _conf=conf;
     _blockNum=_conf->getEcK();
-    _maxInRack=_conf->getEcN()-_blockNum;
+    //_maxInRack=_conf->getEcN()-_blockNum;
+    _maxInRack=_conf->_maxInRack;
     _replicaNum=_conf->getReplicaNum();
     _nodeNum=_conf->getNodeNum()<_replicaNum*_blockNum?
         _conf->getNodeNum():_replicaNum*_blockNum;
@@ -270,7 +271,7 @@ int graph::maxFlow(){
             edgeCount++;
         }
         retVal+=minCap;
-        free(_path);
+        //free(_path);
         _path=NULL;
         //break;
         //showResMat();
@@ -304,7 +305,7 @@ int graph::incrementalMaxFlow(){
             edgeCount++;
         }
         retVal+=minCap;
-        free(_path);
+        //free(_path);
         _path=NULL;
         //break;
         //showResMat();
@@ -383,10 +384,27 @@ int graph::removeVertex(int vid){
 
 /* Initiate a graph with a given placement */
 int graph::initFromPla(int* pla){
+  this->graphInit();
     for(int i=0;i<_blockNum;i++){
-        for(int j=0;j<_replicaNum;j++){
+        for(int j=1;j<_replicaNum;j++){
             this->addEdge(i,pla[i*_replicaNum+j],pla[i*_replicaNum+j]/_conf->getNodePerRack());
         }
+    }
+    if(this->maxFlow()==_blockNum){
+      return 0;
+    }else{
+      this->graphInit();
+      for(int i=0;i<_blockNum;i++){
+        for(int j=1;j<_replicaNum;j++){
+          this->addEdge(i,pla[i*_replicaNum+j],pla[i*_replicaNum+j]/_conf->getNodePerRack());
+        }
+        for(int k=0;k<i;k++){
+          this->addEdge(k,pla[i*_replicaNum],pla[i*_replicaNum]/_conf->getNodePerRack());
+        }
+        if(this->maxFlow()==_blockNum){
+          return 0;
+        }
+      }
     }
     return 0;
 }

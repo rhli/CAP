@@ -37,6 +37,10 @@ config::config(){
       _inRackTrafficPercent=atof(ele->NextSiblingElement("value")->GetText());
     }else if(strcmp(ele->GetText(),"encodingStripeCount")==0){
       _encodingStripeCount=atof(ele->NextSiblingElement("value")->GetText());
+    }else if(strcmp(ele->GetText(),"randSeed")==0){
+      _randSeed=atof(ele->NextSiblingElement("value")->GetText());
+    }else if(strcmp(ele->GetText(),"maxInRack")==0){
+      _maxInRack=atof(ele->NextSiblingElement("value")->GetText());
     }
   }
   _nodeNum=_rackNum*_nodePerRack;

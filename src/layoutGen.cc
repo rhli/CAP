@@ -117,6 +117,42 @@ int layoutGen::SOP(int* output){
     return retVal;
 }
 
+/**
+ * With appointed core-rack, this corresponds to our multi-core-rack design.
+ */
+int layoutGen::SOP(int coreRack,int* output){
+    int* rackInd=(int*)calloc(2,sizeof(int));
+    int retVal=coreRack;
+    _graph->graphInit();
+    for(int i=0;i<_blockNum;i++){
+        /* Every time, we **try** to generate a placement for ONE block. */
+        int index=0;
+        while(1){
+            index++;
+            _graph->backGraph();
+            int* pos=output+i*_repFac;
+            rackInd[0]=retVal;
+            while((rackInd[1]=_randGen->generateInt(_conf->getRackNum()))==rackInd[0]);
+            _randGen->generateList(_conf->getNodePerRack(),1,pos);
+            _randGen->generateList(_conf->getNodePerRack(),_repFac-1,pos+1);
+            for(int j=0;j<_conf->getReplicaNum();j++){
+                pos[j]+=j==0?rackInd[0]*_conf->getNodePerRack():rackInd[1]*_conf->getNodePerRack();
+                _graph->addEdge(i,pos[j],pos[j]/_conf->getNodePerRack());
+            }
+            if(_graph->incrementalMaxFlow()==0){
+                for(int j=0;j<_conf->getReplicaNum();j++){
+                    _graph->removeEdge(i,pos[j],pos[j]/_conf->getNodePerRack());
+                }
+                _graph->restoreGraph();
+            }else{
+                break;
+            }
+        }
+    }
+    free(rackInd);
+    return retVal;
+}
+
 int layoutGen::showPlacement(int* placement){
     for(int i=0;i<_blockNum;i++){
         printf("Block %4d:",i);
@@ -138,6 +174,58 @@ int layoutGen::examinePla(int* pla){
     }
     printf("max flow: %d\n",_graph->maxFlow());
     return _graph->maxFlow()==_conf->getEcK()?1:0;
+}
+
+int layoutGen::getParityLoc(int* input,int* output,int coreRack){
+  _graph->initFromPla(input);
+  _graph->getMaxMatch(output);
+  int* rackCount=(int*)calloc(_conf->getRackNum(),sizeof(int));
+  //int blkInCore = _conf->getEcK() - _graph->maxFlow();
+  //_randGen->generateList(_conf->getNodePerRack(),
+      //_conf->_maxInRack-blkInCore,output+_conf->getEcK());
+  //for(int i=0;i<_conf->_maxInRack;i++){
+    //output[_conf->getEcK()+i]+=coreRack*_conf->getNodePerRack();
+  //}
+  for(int i=0;i<_ecK;i++){
+    if(output[i]!=-1){
+      rackCount[output[i]/_conf->getNodePerRack()]++;
+    }
+  }
+  for(int i=_conf->getEcK();i<_conf->getEcN();i++){
+    //if(output[i]!=-1){
+    //  continue;
+    //}
+    int rackPos=-1;
+    int nodePos=-1;
+    while(1){
+      if(rackCount[coreRack]<_conf->_maxInRack){
+        rackPos=coreRack;
+        break;
+      }else{
+        rackPos=_randGen->generateInt(_conf->getRackNum());
+        if(rackCount[rackPos]<_conf->_maxInRack){
+          break;
+        }
+      }
+    }
+    while(1){
+      nodePos=_randGen->generateInt(_conf->getRackNum());
+      int duplicated=0;
+      for(int j=0;j<i;j++){
+        if(nodePos+rackPos*_conf->getNodePerRack()==output[j]){
+          duplicated=1;
+          break;
+        }
+      }
+      if(duplicated==0){
+        break;
+      }
+    }
+    //printf(" %d %d\n",rackPos,nodePos);
+    output[i]=nodePos+rackPos*_conf->getNodePerRack();
+    rackCount[rackPos]++;
+  }
+  return 0;
 }
 
 
