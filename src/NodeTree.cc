@@ -70,8 +70,12 @@ NodeTree::NodeTree(int leafNum,int maxChild){
     }
     _maxLevel=level;
     //puts("NodeTree initialized");
-    _dataTransferOnce=1;
+    _dataTransferOnce=0.1;
     //_dataTransferOnce=1;
+    _nodeDisk=(facility**)calloc(_leafNum,sizeof(facility*));
+    for(int i=0;i<_leafNum;i++){
+      _nodeDisk[i]=new facility("disk");
+    }
 
     nameSwitches();
     setSwitches(_treeRoot);
@@ -212,28 +216,161 @@ int* NodeTree::getPathToLeaf(int des){
 }
 
 int NodeTree::dataTransfer(int des,int src,double amount){
-    //printf("NodeTree::dataTransfer(): %d %d %lf\n",des,src,amount);
+  double packet=1;
+  double transed=0;
+  int round=static_cast<int>(ceil(amount/packet));
+  //printf("%d %d %lf\n",des,src,simtime());
+  event** doneTrans=(event**)calloc(round,sizeof(event*));
+  for(int i=0;i<round;i++){
+    doneTrans[i]=new event("doneTrans");
+    double transferedAmount=0;
+    /** Do transfer */
+    _nodeDisk[src]->reserve();
+    //printf("transed: %d %d %lf %lf\n",des,src,transferedAmount,simtime());
+    hold(packet/_bandwidth/10*6.5);
+    _nodeDisk[src]->release();
+    transferedAmount+=packet;
+    dataTransferNetwork(des,src,packet,doneTrans[i]);
+  }
+  //printf("done: %d %d %lf\n",des,src,simtime());
+  for(int i=0;i<round;i++){
+    doneTrans[i]->wait();
+    delete doneTrans[i];
+  }
+  free(doneTrans);
+  return 0;
+}
+
+/* Transfer to disk */
+int NodeTree::dataTransferTD(int des,int src,double amount){
+  double packet=1;
+  double transed=0;
+  int round=static_cast<int>(ceil(amount/packet));
+  //printf("%d %d %lf\n",des,src,simtime());
+  event** doneTrans=(event**)calloc(round,sizeof(event*));
+  for(int i=0;i<round;i++){
+    doneTrans[i]=new event("doneTrans");
+    double transferedAmount=0;
+    /** Do transfer */
+    _nodeDisk[src]->reserve();
+    //printf("transed: %d %d %lf %lf\n",des,src,transferedAmount,simtime());
+    hold(packet/_bandwidth/10*6.5);
+    _nodeDisk[src]->release();
+    transferedAmount+=packet;
+    dataTransferNDisk(des,src,packet,doneTrans[i]);
+  }
+  //printf("done: %d %d %lf\n",des,src,simtime());
+  for(int i=0;i<round;i++){
+    doneTrans[i]->wait();
+    delete doneTrans[i];
+  }
+  free(doneTrans);
+  return 0;
+}
+
+void NodeTree::dataTransferNDisk(int des,int src,double amount,event* eve){
+    create("transND");
     if(des==src){
+        eve->set();
+        return;
+    }
+    if(des<0||des>=_leafNum){
+        fprintf(stderr,"NodeTree::dataTransfer(): des %d out of index\n",des);
+        exit(0);
+        eve->set();
+        return;
+    }
+    if(src==-1){
         int* path=getPathToLeaf(des);
+        double startTime=simtime();
         double transferedAmount=0;
         while(transferedAmount<amount){
             /** Do transfer */
             double tAmount=_dataTransferOnce<amount-transferedAmount?
                 _dataTransferOnce:amount-transferedAmount;
-            _switchList[path[1]]->reservePath(path[0],-1);
-            //_switchList[path[1]]->reservePath(-1,path[0]);
+            for(int i=_maxLevel;i>0;i--){
+                _switchList[path[i]]->reservePath(path[i-1],-1);
+            }
             hold(tAmount/_bandwidth);
-            _switchList[path[1]]->releasePath(path[0],-1);
-            //_switchList[path[1]]->releasePath(-1,path[0]);
+            for(int i=_maxLevel;i>0;i--){
+                _switchList[path[i]]->releasePath(path[i-1],-1);
+            }
             transferedAmount+=tAmount;
         }
         free(path);
-        return 0;
+        eve->set();
+        return;
+    }
+    if(src<0||src>=_leafNum){
+        fprintf(stderr,"NodeTree::dataTransfer(): out of index\n");
+        eve->set();
+        return;
+    }
+    if(amount==0){
+        eve->set();
+        return;
+    }
+    int* path=getPath(des,src);
+    double startTime=simtime();
+    double transferedAmount=0;
+    while(transferedAmount<amount){
+        /** Do transfer */
+        double tAmount=_dataTransferOnce<amount-transferedAmount?
+            _dataTransferOnce:amount-transferedAmount;
+        int switchNum=path[0]-2;
+        int toTop=(switchNum-1)/2;
+        int fromTop=(switchNum-1)/2;
+        _switchList[path[2+toTop]]->reservePath(path[3+toTop],path[1+toTop]);
+        for(int i=0;i<toTop;i++){
+            _switchList[path[2+i]]->reservePath(-1,path[1+i]);
+        }
+        for(int i=0;i<fromTop;i++){
+            _switchList[path[path[0]-1-i]]->reservePath(path[path[0]-i],-1);
+        }
+        hold(tAmount/_bandwidth);
+        _switchList[path[2+toTop]]->releasePath(path[3+toTop],path[1+toTop]);
+        for(int i=0;i<toTop;i++){
+            _switchList[path[2+i]]->releasePath(-1,path[1+i]);
+        }
+        for(int i=0;i<fromTop;i++){
+            _switchList[path[path[0]-1-i]]->releasePath(path[path[0]-i],-1);
+        }
+        transferedAmount+=tAmount;
+    }
+    _nodeDisk[des]->reserve();
+    hold(amount*1.2/_bandwidth);
+    _nodeDisk[des]->release();
+    free(path);
+    eve->set();
+    return;
+}
+
+void NodeTree::dataTransferNetwork(int des,int src,double amount,event* eve){
+    //printf("NodeTree::dataTransfer(): %d %d %lf\n",des,src,amount);
+    create("transNet");
+    if(des==src){
+        //int* path=getPathToLeaf(des);
+        //double transferedAmount=0;
+        //while(transferedAmount<amount){
+        //    /** Do transfer */
+        //    double tAmount=_dataTransferOnce<amount-transferedAmount?
+        //        _dataTransferOnce:amount-transferedAmount;
+        //    _switchList[path[1]]->reservePath(path[0],-1);
+        //    _switchList[path[1]]->reservePath(-1,path[0]);
+        //    hold(tAmount/_bandwidth);
+        //    _switchList[path[1]]->releasePath(path[0],-1);
+        //    _switchList[path[1]]->releasePath(-1,path[0]);
+        //    transferedAmount+=2*tAmount;
+        //}
+        //free(path);
+        eve->set();
+        return;
     }
     if(des<0||des>=_leafNum){
         fprintf(stderr,"NodeTree::dataTransfer(): des %d out of index\n",des);
         exit(0);
-        return 0;
+        eve->set();
+        return;
     }
     if(src==-1){
         int* path=getPathToLeaf(des);
@@ -256,14 +393,17 @@ int NodeTree::dataTransfer(int des,int src,double amount){
             transferedAmount+=tAmount;
         }
         free(path);
-        return 0;
+        eve->set();
+        return;
     }
     if(src<0||src>=_leafNum){
         fprintf(stderr,"NodeTree::dataTransfer(): out of index\n");
-        return 0;
+        eve->set();
+        return;
     }
     if(amount==0){
-        return 0;
+        eve->set();
+        return;
     }
     int* path=getPath(des,src);
     //double specialBandwidth=10*1000000/1024/1024/8;
@@ -312,7 +452,8 @@ int NodeTree::dataTransfer(int des,int src,double amount){
     //printf("NodeTree::dataTransfer(): finished %d %d %lf\n",des,src,amount);
     //printf("from: %d to: %d amount %lf time %lf\n",src,des,amount,simtime()-startTime);
     free(path);
-    return 0;
+    eve->set();
+    return;
 }
 
 int NodeTree::setHostRange(tNode* node){

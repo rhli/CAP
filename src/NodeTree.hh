@@ -3,6 +3,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <cmath>
 #include "Switch.hh"
 #include "cpp.h"
 
@@ -36,6 +37,8 @@ class NodeTree{
 
         int _maxLevel;
 
+        facility** _nodeDisk;
+
         /* 
          * Here is how we transfer our data:
          * Every time, we transfer the amount of _dataTransferOnce
@@ -61,6 +64,9 @@ class NodeTree{
         int isInSwitch(int node,tNode* tn);
         /* from root to a leaf */
         int* getPathToLeaf(int des);
+        void dataTransferNetwork(int des,int src,double size,event* eve);
+        /* through network and to disk */
+        void dataTransferNDisk(int des,int src,double size,event* eve);
 
     public:
         NodeTree(int leafNum,int maxChild);
@@ -70,6 +76,7 @@ class NodeTree{
         //int* getRackList();
         int* getRackNodeList(int rackID);
         int dataTransfer(int des,int src,double size);
+        int dataTransferTD(int des,int src,double size);
         /*
          * return a two elment array representing the range of hosts
          * sharing the same elments in some level

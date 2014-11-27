@@ -114,7 +114,7 @@ void trafficManager::write(){
 void trafficManager::pipeline(double size,int* loc,event* eve){
   create("pipeline");
   for (int i=0;i<_repFac-1;i++){
-    _nodeTree->dataTransfer(loc[i+1],loc[i],size);
+    _nodeTree->dataTransferTD(loc[i+1],loc[i],size);
   }
   eve->set();
 }
@@ -124,8 +124,12 @@ void trafficManager::inClusWriteOp(int* loc){
   _writeCounter++;
   double startTime=simtime();
   int* pos=loc;
-  int packetSize=8;
+  int packetSize=1;
   event** doneEvent=(event**)calloc(_blockSize/packetSize,sizeof(event*));
+  for(int idx=0;idx<_repFac;idx++){
+    loc[idx]=loc[idx]/_conf->getNodePerRack()*_conf->getNodePerRack();
+  }
+  //printf("%d %d\n",loc[0],loc[1]);
   for(int i=0;i<_blockSize/packetSize;i++){
     doneEvent[i]=new event("doneFlag");
   }
@@ -175,13 +179,17 @@ void trafficManager::stripe(int stripeCount){
       rackStripeCount[i]%_ecK==0?rackStripeCount[i]/_ecK:rackStripeCount[i]/_ecK+1;
   }
   for(int i=0;i<_conf->getRackNum();i++){
+  //for(int i=0;i<1;i++){
     if(_conf->getRepPlaPolicy()==1){
       //stripeMap(i*_conf->getNodePerRack()+_randGen->generateInt(_conf->getNodePerRack()),
       //    rackStripeCount[i]);
-      stripeMap(i*_conf->getNodePerRack()+_randGen->generateInt(_conf->getNodePerRack()),
-          stripeCount/_conf->getRackNum());
+      //stripeMap(i*_conf->getNodePerRack()+_randGen->generateInt(_conf->getNodePerRack()),
+      //    stripeCount/_conf->getRackNum());
+      stripeMap(i*_conf->getNodePerRack(),stripeCount/_conf->getRackNum());
     }else{
-      stripeMap(_randGen->generateInt(_conf->getNodeNum()),stripeCount/_conf->getRackNum());
+      //stripeMap(_randGen->generateInt(_conf->getNodeNum()),stripeCount/_conf->getRackNum());
+      stripeMap(_randGen->generateInt(_conf->getNodeNum())/_conf->getNodePerRack()*_conf->getNodePerRack(),
+          stripeCount/_conf->getRackNum());
     }
     //fprintf(stdout,"stripe count:%d %d\n",i,rackStripeCount[i]);
     hold(1);
@@ -224,6 +232,9 @@ void trafficManager::stripeMap(int id,int size){
       int* rackInd=(int*)calloc(2,sizeof(int));
       for(int j=0;j<_ecK;j++){
         int* pos=repLocs+j*_conf->getReplicaNum();
+        for(int idx=0;idx<_repFac;idx++){
+          pos[idx]=pos[idx]/_conf->getNodePerRack()*_conf->getNodePerRack();
+        }
         _randGen->generateList(_conf->getRackNum(),2,rackInd);
         _randGen->generateList(_conf->getNodePerRack(),1,pos);
         _randGen->generateList(_conf->getNodePerRack(),_conf->getReplicaNum()-1,pos+1);
@@ -237,31 +248,34 @@ void trafficManager::stripeMap(int id,int size){
       int* repPos=repLocs+j*_repFac;
       int from=_nodeTree->getNearest(id,_repFac,repPos);
       if(from!=-1){
-        _nodeTree->dataTransfer(id,from,_blockSize);
+        from=from/_conf->getNodePerRack()*_conf->getNodePerRack();
+        if(id==from){
+          _nodeTree->dataTransfer(id,from,_blockSize);
+        }else{
+          _nodeTree->dataTransfer(id,from,_blockSize);
+        }
       }else{
         fprintf(stderr,"trafficManager::stripeMap(): weird thing happened\n");
       }
     }
     /* hold some time for computation */
-    hold(2.9);
-    int* ecLoc=(int*)calloc(_ecN,sizeof(int));
-    lGen->getParityLoc(repLocs,ecLoc,coreRack);
-    for(int j=_ecK;j<_ecN;j++){
-      //printf("%d\n",ecLoc[j]);
-      _nodeTree->dataTransfer(ecLoc[j],id,_blockSize);
-    }
-    
-    //int* ecLoc=(int*)calloc(_ecN-_ecK,sizeof(int));
-    //_randGen->generateList(_conf->getRackNum(),_ecN-_ecK,ecLoc);
+    hold(4);
+    //int* ecLoc=(int*)calloc(_ecN,sizeof(int));
+    //lGen->getParityLoc(repLocs,ecLoc,coreRack);
     //for(int j=_ecK;j<_ecN;j++){
-    //  _nodeTree->dataTransfer(ecLoc[j-_ecK]*_conf->getNodePerRack()+
-    //      _randGen->generateInt(_conf->getNodePerRack()),
-    //      id,_blockSize);
+    //  //printf("%d\n",ecLoc[j]);
+    //  _nodeTree->dataTransfer(ecLoc[j],id,_blockSize);
     //}
+    
+    int* ecLoc=(int*)calloc(_ecN-_ecK,sizeof(int));
+    _randGen->generateList(_conf->getRackNum(),_ecN-_ecK,ecLoc);
+    for(int j=_ecK;j<_ecN;j++){
+      _nodeTree->dataTransferTD(ecLoc[j-_ecK]*_conf->getNodePerRack(),id,_blockSize);
+    }
     //_wholeStripeThpt+=simtime()-startTime;
     fprintf(stdout,"stripeOp: begins %lf ends %lf\n",startTime,simtime());
     /* hold some time for other overhead */
-    hold(3);
+    hold(3.5);
   }
   free(repLocs);
 }

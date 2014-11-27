@@ -71,7 +71,7 @@ for item in inClusWriteRange :
 #print "inClusWrite avg: " + str(inClusWriteSum/inClusWriteCount)
 #print "outEncInClusWrite avg: " + str(noEncWSum/noEncWCount)
 
-#print str(printAvg(stripeDur))
+print str(printAvg(stripeDur))
 #if writeCount != 0:
 #  print str(writeSum/writeCount)
 if inClusWriteCount != 0:
