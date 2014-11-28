@@ -36,11 +36,11 @@ for line in fh:
 #fh.close()
 
 #print "encoding time " + str(endTime-startTime)
-#print str(endTime-startTime)
+print str(endTime-startTime)
 np.set_printoptions(precision=2)
 
-for item in stripeRange:
-  print "%.2f" % (item[1] - startTime)
+#for item in stripeRange:
+#  print "%.2f" % (item[1] - startTime)
 #print ""
 
 for item in writeRange :
@@ -71,13 +71,13 @@ for item in inClusWriteRange :
 #print "inClusWrite avg: " + str(inClusWriteSum/inClusWriteCount)
 #print "outEncInClusWrite avg: " + str(noEncWSum/noEncWCount)
 
-#print str(printAvg(stripeDur))
+print str(printAvg(stripeDur))
 #if writeCount != 0:
 #  print str(writeSum/writeCount)
-#if inClusWriteCount != 0:
-#  print str(inClusWriteSum/inClusWriteCount)
-#if noEncWCount != 0:
-#  print str(noEncWSum/noEncWCount)
+if inClusWriteCount != 0:
+  print str(inClusWriteSum/inClusWriteCount)
+if noEncWCount != 0:
+  print str(noEncWSum/noEncWCount)
 
 #print ""
 

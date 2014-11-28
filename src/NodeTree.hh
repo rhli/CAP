@@ -76,6 +76,7 @@ class NodeTree{
         //int* getRackList();
         int* getRackNodeList(int rackID);
         int dataTransfer(int des,int src,double size);
+        int networkTransfer(int des,int src,double size);
         int dataTransferTD(int des,int src,double size);
         /*
          * return a two elment array representing the range of hosts
