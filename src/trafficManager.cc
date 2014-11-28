@@ -36,7 +36,7 @@ trafficManager::trafficManager(config* c){
   //}
 
   write();
-  //bgTraffic();
+  bgTraffic();
   hold(30);
   stripe(_conf->_encodingStripeCount);
   hold(270);
@@ -111,16 +111,36 @@ void trafficManager::write(){
   return;
 }
 
+void trafficManager::writePipe(double size,int* loc,event* eve){
+  create("wpipe");
+  for(int i=1;i<_repFac;i++){
+    //printf("start time:%lf\n",simtime());
+    _nodeTree->dataTransfer(loc[i],loc[i-1],size);
+    //printf("end time:%lf\n",simtime());
+  }
+  eve->set();
+}
+
 void trafficManager::inClusWriteOp(int* loc){
   create("writeOp");
   _writeCounter++;
   double startTime=simtime();
   int* pos=loc;
-  _nodeTree->dataTransfer(pos[0],pos[0],_blockSize);
   //hold(0.5);
-  for(int i=1;i<_repFac;i++){
-    _nodeTree->dataTransfer(pos[i],pos[i-1],_blockSize);
+  event** doneTrans= (event**)calloc(_blockSize,sizeof(event*));
+  for(int i=0;i<_blockSize;i++){
+    doneTrans[i]=new event("doneTrans");
+    //printf("start time:%lf\n",simtime());
+    //_nodeTree->dataTransfer(pos[0],pos[0],1);
+    //hold(0.5);
+    //printf("end time:%lf\n",simtime());
+    writePipe(1,pos,doneTrans[i]);
   }
+  for(int i=0;i<_blockSize;i++){
+    doneTrans[i]->wait();
+    free(doneTrans[i]);
+  }
+  free(doneTrans);
   fprintf(stdout,"inClusWriteOp: begins %lf ends %lf\n",startTime,simtime());
   _wholeWriteThpt+=_ecK*_blockSize/(simtime()-startTime);
   _completedWriteCounter++;
@@ -133,9 +153,19 @@ void trafficManager::writeOp(int* loc){
   _writeCounter++;
   double startTime=simtime();
   int* pos=loc;
-  _nodeTree->dataTransfer(pos[0],-1,_blockSize);
-  _nodeTree->dataTransfer(pos[1],pos[0],_blockSize);
-  _nodeTree->dataTransfer(pos[2],pos[1],_blockSize);
+  event** doneTrans= (event**)calloc(_blockSize,sizeof(event*));
+  for(int i=0;i<_blockSize;i++){
+    doneTrans[i]=new event("doneTrans");
+    //printf("start time:%lf\n",simtime());
+    _nodeTree->dataTransfer(pos[0],-1,1);
+    //printf("end time:%lf\n",simtime());
+    writePipe(1,pos,doneTrans[i]);
+  }
+  for(int i=0;i<_blockSize;i++){
+    doneTrans[i]->wait();
+    free(doneTrans[i]);
+  }
+  free(doneTrans);
   fprintf(stdout,"writeOp: begins %lf ends %lf\n",startTime,simtime());
   _wholeWriteThpt+=_ecK*_blockSize/(simtime()-startTime);
   _completedWriteCounter++;

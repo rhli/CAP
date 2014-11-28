@@ -55,6 +55,8 @@ class trafficManager{
         void inClusWriteOp(int*);
         void stripeOp(int*,int*,int);
         void bgOp(int,int,double,int);
+
+        void writePipe(double,int*,event*);
     public:
         trafficManager(config*);
         /* Just for testing purpose on whether NodeTree is performing well */
