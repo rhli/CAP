@@ -70,8 +70,8 @@ NodeTree::NodeTree(int leafNum,int maxChild){
     }
     _maxLevel=level;
     //puts("NodeTree initialized");
-    _dataTransferOnce=0.1;
-    //_dataTransferOnce=1;
+    //_dataTransferOnce=0.1;
+    _dataTransferOnce=1;
     _nodeDisk=(facility**)calloc(_leafNum,sizeof(facility*));
     for(int i=0;i<_leafNum;i++){
       _nodeDisk[i]=new facility("disk");

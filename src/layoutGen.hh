@@ -29,9 +29,7 @@ class layoutGen{
         int _repFac;
 
         /* Erasure coding parameters, for stripe-oriented placement */
-        int _ecN;
-        int _ecK;
-        int _stripeNum;
+        //int _stripeNum;
         randomGen* _randGen;
         graph* _graph;
     public:

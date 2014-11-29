@@ -35,8 +35,8 @@ trafficManager::trafficManager(config* c){
   //  prev=simtime();
   //}
 
-  //write();
-  //bgTraffic();
+  write();
+  bgTraffic();
   hold(30);
   stripe(_conf->_encodingStripeCount);
   hold(270);

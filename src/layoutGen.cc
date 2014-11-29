@@ -5,7 +5,7 @@ layoutGen::layoutGen(int blockNum,config* conf){
     _repFac=_conf->getReplicaNum();
     _blockNum=blockNum;
     _blockNum=_conf->getEcK();
-    _stripeNum=_blockNum%_conf->getEcK()==0?_blockNum%_conf->getEcK():_blockNum%_conf->getEcK()+1;
+    //_stripeNum=_blockNum%_conf->getEcK()==0?_blockNum%_conf->getEcK():_blockNum%_conf->getEcK()+1;
     _graph=new graph(_conf);
 }
 
@@ -14,7 +14,7 @@ layoutGen::layoutGen(config* conf){
     _conf=conf;
     _blockNum=_conf->getEcK();
     _repFac=_conf->getReplicaNum();
-    _stripeNum=_blockNum%_conf->getEcK()==0?_blockNum%_conf->getEcK():_blockNum%_conf->getEcK()+1;
+    //_stripeNum=_blockNum%_conf->getEcK()==0?_blockNum%_conf->getEcK():_blockNum%_conf->getEcK()+1;
     _graph=new graph(_conf);
 }
 
@@ -186,7 +186,7 @@ int layoutGen::getParityLoc(int* input,int* output,int coreRack){
   //for(int i=0;i<_conf->_maxInRack;i++){
     //output[_conf->getEcK()+i]+=coreRack*_conf->getNodePerRack();
   //}
-  for(int i=0;i<_ecK;i++){
+  for(int i=0;i<_blockNum;i++){
     if(output[i]!=-1){
       rackCount[output[i]/_conf->getNodePerRack()]++;
     }
