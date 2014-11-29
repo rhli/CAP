@@ -186,11 +186,13 @@ int layoutGen::getParityLoc(int* input,int* output,int coreRack){
   //for(int i=0;i<_conf->_maxInRack;i++){
     //output[_conf->getEcK()+i]+=coreRack*_conf->getNodePerRack();
   //}
-  for(int i=0;i<_ecK;i++){
+  puts("HERE0");
+  for(int i=0;i<_blockNum;i++){
     if(output[i]!=-1){
       rackCount[output[i]/_conf->getNodePerRack()]++;
     }
   }
+  puts("HERE1");
   for(int i=_conf->getEcK();i<_conf->getEcN();i++){
     //if(output[i]!=-1){
     //  continue;
