@@ -228,7 +228,7 @@ int NodeTree::dataTransfer(int des,int src,double amount){
     /** Do transfer */
     if(src!=-1){
       _nodeDisk[src]->reserve();
-      hold(packet/_bandwidth/10*6.5);
+      hold(packet/_bandwidth/10*6.5/90*_bandwidth);
       _nodeDisk[src]->release();
     }
     transferedAmount+=packet;
@@ -253,7 +253,7 @@ int NodeTree::dataTransferTD(int des,int src,double amount){
     double transferedAmount=0;
     if(src!=-1){
       _nodeDisk[src]->reserve();
-      hold(packet/_bandwidth/10*6.5);
+      hold(packet/_bandwidth/10*6.5/90*_bandwidth);
       _nodeDisk[src]->release();
     }
     transferedAmount+=packet;
@@ -297,6 +297,10 @@ void NodeTree::dataTransferNDisk(int des,int src,double amount,event* eve){
             transferedAmount+=tAmount;
         }
         free(path);
+        _nodeDisk[des]->reserve();
+        hold(amount*1.2/_bandwidth/90*_bandwidth);
+        _nodeDisk[des]->release();
+        eve->set();
         eve->set();
         return;
     }
@@ -306,6 +310,9 @@ void NodeTree::dataTransferNDisk(int des,int src,double amount,event* eve){
         return;
     }
     if(amount==0){
+        _nodeDisk[des]->reserve();
+        hold(amount*1.2/_bandwidth/90*_bandwidth);
+        _nodeDisk[des]->release();
         eve->set();
         return;
     }
@@ -336,9 +343,9 @@ void NodeTree::dataTransferNDisk(int des,int src,double amount,event* eve){
         }
         transferedAmount+=tAmount;
     }
-    //_nodeDisk[des]->reserve();
-    //hold(amount*1.2/_bandwidth);
-    //_nodeDisk[des]->release();
+    _nodeDisk[des]->reserve();
+    hold(amount*1.2/_bandwidth/90*_bandwidth);
+    _nodeDisk[des]->release();
     free(path);
     eve->set();
     return;
@@ -381,7 +388,6 @@ int NodeTree::networkTransfer(int des,int src,double amount){
         return 0;
     }
     int* path=getPath(des,src);
-    double startTime=simtime();
     double transferedAmount=0;
     while(transferedAmount<amount){
         /** Do transfer */
@@ -443,7 +449,6 @@ void NodeTree::dataTransferNetwork(int des,int src,double amount,event* eve){
         //for(int i=0;i<_maxLevel+1;i++){
         //    printf(i==_maxLevel?"%d\n":"%d ",path[i]);
         //}
-        double startTime=simtime();
         double transferedAmount=0;
         while(transferedAmount<amount){
             /** Do transfer */
@@ -477,7 +482,6 @@ void NodeTree::dataTransferNetwork(int des,int src,double amount,event* eve){
     //    printf(i==0?"Path: %d":" %d",path[i+1]);
     //}
     //printf("\n");
-    double startTime=simtime();
     double transferedAmount=0;
     while(transferedAmount<amount){
         //printf("NodeTree::dataTransfer():%lf transferred at %lf\n",transferedAmount,simtime());
@@ -515,8 +519,6 @@ void NodeTree::dataTransferNetwork(int des,int src,double amount,event* eve){
         }
         transferedAmount+=tAmount;
     }
-    //printf("NodeTree::dataTransfer(): finished %d %d %lf\n",des,src,amount);
-    //printf("from: %d to: %d amount %lf time %lf\n",src,des,amount,simtime()-startTime);
     free(path);
     eve->set();
     return;

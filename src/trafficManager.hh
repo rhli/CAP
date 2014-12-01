@@ -48,7 +48,7 @@ class trafficManager{
          */
         void write();
         void stripe(int);
-        void stripeMap(int,int);
+        void stripeMap(int,int,event*);
         void bgTraffic();
 
         void writeOp(int*);
