@@ -70,8 +70,8 @@ NodeTree::NodeTree(int leafNum,int maxChild){
     }
     _maxLevel=level;
     //puts("NodeTree initialized");
-    //_dataTransferOnce=0.1;
-    _dataTransferOnce=1;
+    _dataTransferOnce=0.1;
+    //_dataTransferOnce=1;
     _nodeDisk=(facility**)calloc(_leafNum,sizeof(facility*));
     for(int i=0;i<_leafNum;i++){
       _nodeDisk[i]=new facility("disk");
@@ -226,7 +226,9 @@ int NodeTree::dataTransfer(int des,int src,double amount){
     /** Do transfer */
     if(src!=-1){
       _nodeDisk[src]->reserve();
+      //double startTime=simtime();
       hold(packet/_bandwidth/10*6.5/90*_bandwidth);
+      //printf("dur: %d %d %lf %lf\n",des,src,simtime(),simtime()-startTime);
       _nodeDisk[src]->release();
     }
     transferedAmount+=packet;

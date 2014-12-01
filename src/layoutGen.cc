@@ -131,12 +131,26 @@ int layoutGen::SOP(int coreRack,int* output){
             index++;
             _graph->backGraph();
             int* pos=output+i*_repFac;
-            rackInd[0]=retVal;
-            while((rackInd[1]=_randGen->generateInt(_conf->getRackNum()))==rackInd[0]);
-            _randGen->generateList(_conf->getNodePerRack(),1,pos);
-            _randGen->generateList(_conf->getNodePerRack(),_repFac-1,pos+1);
+            //rackInd[0]=retVal;
+            //while((rackInd[1]=_randGen->generateInt(_conf->getRackNum()))==rackInd[0]);
+            //_randGen->generateList(_conf->getNodePerRack(),1,pos);
+            //_randGen->generateList(_conf->getNodePerRack(),_repFac-1,pos+1);
+            _randGen->generateList(_conf->getRackNum(),_repFac,pos);
+            int coreRackPos=-1;
+            for(int i=0;i<_conf->getReplicaNum();i++){
+              if(pos[i]==coreRack){
+                coreRackPos=i;
+                break;
+              }
+            }
+            if(coreRackPos==-1){
+              pos[0]=coreRack;
+            }else{
+              pos[coreRackPos]=pos[0];
+              pos[0]=coreRack;
+            }
             for(int j=0;j<_conf->getReplicaNum();j++){
-                pos[j]+=j==0?rackInd[0]*_conf->getNodePerRack():rackInd[1]*_conf->getNodePerRack();
+              pos[j]=pos[j]*_conf->getNodePerRack()+_randGen->generateInt(_conf->getNodePerRack());
                 _graph->addEdge(i,pos[j],pos[j]/_conf->getNodePerRack());
             }
             if(_graph->incrementalMaxFlow()==0){

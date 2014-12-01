@@ -60,15 +60,15 @@ void trafficManager::write(){
   s->reseed(10000);
   if(_conf->getRepPlaPolicy()!=1){
     while(1){
-      int* rackInd=(int*)calloc(2,sizeof(int));
+      int* rackInd=(int*)calloc(_conf->getReplicaNum(),sizeof(int));
       int* loc=(int*)calloc(_conf->getReplicaNum(),sizeof(int));
-      _randGen->generateList(_conf->getRackNum(),2,rackInd);
-      _randGen->generateList(_conf->getNodePerRack(),1,loc);
-      _randGen->generateList(_conf->getNodePerRack(),_conf->getReplicaNum()-1,loc+1);
+      //_randGen->generateList(_conf->getRackNum(),2,rackInd);
+      //_randGen->generateList(_conf->getNodePerRack(),1,loc);
+      //_randGen->generateList(_conf->getNodePerRack(),_conf->getReplicaNum()-1,loc+1);
+      _randGen->generateList(_conf->getRackNum(),_conf->getReplicaNum(),loc);
       for(int k=0;k<_conf->getReplicaNum();k++){
-        loc[k]+=k==0?rackInd[0]*_conf->getNodePerRack():rackInd[1]*_conf->getNodePerRack();
+        loc[k]=loc[k]*_conf->getNodePerRack()+_randGen->generateInt(_conf->getNodePerRack());
       }
-      free(rackInd);
       if (s->uniform(0,1)<_conf->_inClusWritePercent){
         inClusWriteOp(loc);
       } else {
@@ -117,13 +117,14 @@ void trafficManager::write(){
 void trafficManager::pipeline(double size,int* loc,event* eve){
   //create("pipeline");
   for (int i=0;i<_repFac-1;i++){
-    _nodeTree->dataTransferTD(loc[i+1],loc[i],size);
+    _nodeTree->dataTransfer(loc[i+1],loc[i],size);
   }
   eve->set();
 }
 
 void trafficManager::inClusWriteOp(int* loc){
   create("writeOp");
+  //printf("src:%d %d\n",loc[0],loc[1]);
   _writeCounter++;
   double startTime=simtime();
   int* pos=loc;
@@ -136,7 +137,7 @@ void trafficManager::inClusWriteOp(int* loc){
   }
   for(int i=0;i<_blockSize/packetSize;i++){
     doneEvent[i]->wait();
-    delete doneEvent[i];
+    free(doneEvent[i]);
   }
   free(doneEvent);
   fprintf(stdout,"inClusWriteOp: begins %lf ends %lf\n",startTime,simtime());
@@ -237,20 +238,18 @@ void trafficManager::stripeMap(int id,int size,event* eve){
       //free(rackInd);
       //free(list);
     }else{
-      int* rackInd=(int*)calloc(2,sizeof(int));
+      //int* rackInd=(int*)calloc(2,sizeof(int));
       for(int j=0;j<_ecK;j++){
         int* pos=repLocs+j*_conf->getReplicaNum();
-        for(int idx=0;idx<_repFac;idx++){
-          pos[idx]=pos[idx]/_conf->getNodePerRack()*_conf->getNodePerRack();
-        }
-        _randGen->generateList(_conf->getRackNum(),2,rackInd);
-        _randGen->generateList(_conf->getNodePerRack(),1,pos);
-        _randGen->generateList(_conf->getNodePerRack(),_conf->getReplicaNum()-1,pos+1);
+        //_randGen->generateList(_conf->getRackNum(),2,rackInd);
+        //_randGen->generateList(_conf->getNodePerRack(),1,pos);
+        //_randGen->generateList(_conf->getNodePerRack(),_conf->getReplicaNum()-1,pos+1);
+        _randGen->generateList(_conf->getNodePerRack(),_conf->getReplicaNum(),pos);
         for(int k=0;k<_conf->getReplicaNum();k++){
-          pos[k]+=k==0?rackInd[0]*_conf->getNodePerRack():rackInd[1]*_conf->getNodePerRack();
+          pos[k]=pos[k]*_conf->getNodePerRack()+_randGen->generateInt(_conf->getNodePerRack());
         }
       }
-      free(rackInd);
+      //free(rackInd);
     }
     for(int j=0;j<_ecK;j++){
       int* repPos=repLocs+j*_repFac;
