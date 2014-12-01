@@ -115,7 +115,7 @@ void trafficManager::write(){
 }
 
 void trafficManager::pipeline(double size,int* loc,event* eve){
-  create("pipeline");
+  //create("pipeline");
   for (int i=0;i<_repFac-1;i++){
     _nodeTree->dataTransferTD(loc[i+1],loc[i],size);
   }
@@ -267,7 +267,7 @@ void trafficManager::stripeMap(int id,int size,event* eve){
     int* ecLoc=(int*)calloc(_ecN,sizeof(int));
     lGen->getParityLoc(repLocs,ecLoc,coreRack);
     for(int j=_ecK;j<_ecN;j++){
-      _nodeTree->dataTransfer(ecLoc[j],id,_blockSize);
+      _nodeTree->dataTransferTD(ecLoc[j],id,_blockSize);
     }
     
     //int* ecLoc=(int*)calloc(_ecN-_ecK,sizeof(int));
@@ -397,8 +397,8 @@ void trafficManager::stripeOp(int* repLoc,int* ecLoc,int opNode){
 
 void trafficManager::bgOp(int des,int src,double size,int flag){
   create("bgOp");
-  //_nodeTree->networkTransfer(des,src,size);
-  printf("bgOp: %lf\n",size);
+  _nodeTree->networkTransfer(des,src,size);
+  //printf("bgOp: %lf\n",size);
   //_nodeTree->dataTransfer(des,src,size);
   //fprintf(stdout,flag==0?"bg inter thpt %lf\n":"bg intra thpt %lf\n",size/(simtime()-startTime));
   //if(flag==0){
