@@ -216,7 +216,7 @@ int* NodeTree::getPathToLeaf(int des){
 }
 
 int NodeTree::dataTransfer(int des,int src,double amount){
-  double packet=1;
+  double packet=4;
   int round=static_cast<int>(ceil(amount/packet));
   //printf("%d %d %lf\n",des,src,simtime());
   event** doneTrans=(event**)calloc(round,sizeof(event*));
@@ -242,7 +242,7 @@ int NodeTree::dataTransfer(int des,int src,double amount){
 
 /* Transfer to disk */
 int NodeTree::dataTransferTD(int des,int src,double amount){
-  double packet=1;
+  double packet=4;
   int round=static_cast<int>(ceil(amount/packet));
   event** doneTrans=(event**)calloc(round,sizeof(event*));
   for(int i=0;i<round;i++){

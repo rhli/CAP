@@ -115,7 +115,7 @@ void trafficManager::write(){
 }
 
 void trafficManager::pipeline(double size,int* loc,event* eve){
-  //create("pipeline");
+  create("pipeline");
   for (int i=0;i<_repFac-1;i++){
     _nodeTree->dataTransferTD(loc[i+1],loc[i],size);
   }
@@ -127,7 +127,7 @@ void trafficManager::inClusWriteOp(int* loc){
   _writeCounter++;
   double startTime=simtime();
   int* pos=loc;
-  int packetSize=1;
+  int packetSize=4;
   event** doneEvent=(event**)calloc(_blockSize/packetSize,sizeof(event*));
   for(int i=0;i<_blockSize/packetSize;i++){
     doneEvent[i]=new event("doneFlag");
