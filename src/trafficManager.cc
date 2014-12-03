@@ -125,6 +125,7 @@ void trafficManager::inClusWriteOp(int* loc){
   double startTime=simtime();
   int* pos=loc;
   int packetSize=1;
+  hold(0.33);
   event** doneEvent=(event**)calloc(_blockSize/packetSize,sizeof(event*));
   for(int idx=0;idx<_repFac;idx++){
     loc[idx]=loc[idx]/_conf->getNodePerRack()*_conf->getNodePerRack();
