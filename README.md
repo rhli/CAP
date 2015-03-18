@@ -6,7 +6,7 @@ To simply our description, we refer the directory of CSIM-20 as "CSIM directory"
 1. We suppose you have purchased CSIM-20 and had it installed in your machine.
 2. Go to CSIM directory, you can find a file csim.gpp and a directory lib/.  Create links of csim.gpp and lib/ in the project directory.
 > ln -s *CSIM-directory*/csim.gpp *project-directory*/csim.gpp
-
+> > 
 > ln -s *CSIM-directory*/lib/ *project-directory*/lib/
 
 3. In the project directory, configure the system settings in config/sysSetting.xml.
