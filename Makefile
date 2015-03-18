@@ -1,10 +1,14 @@
 CC = ./csim.gpp
 OBJ_DIR = obj
 SRC_DIR = src
-#CFLAG = -O3
 CFLAG = -Wall
 
-all: main
+all: directories main
+
+directories: $(OBJ_DIR)
+
+${OBJ_DIR}:
+	mkdir -p $(OBJ_DIR)
 
 main: $(SRC_DIR)/main.cc $(OBJ_DIR)/tinyxml2.o $(OBJ_DIR)/config.o $(OBJ_DIR)/graph.o $(OBJ_DIR)/randomGen.o \
 	$(OBJ_DIR)/layoutGen.o $(OBJ_DIR)/trafficManager.o $(OBJ_DIR)/NodeTree.o $(OBJ_DIR)/Switch.o
