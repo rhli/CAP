@@ -22,7 +22,7 @@
     <!-- number of stripes to be encoded -->
     <attribute> <name>encodingStripeCount</name> <value>1000</value> </attribute>
     <!-- random seed -->
-    <attribute> <name>randSeed</name> <value>10000</value> </attribute>
+    <attribute> <name>randSeed</name> <value>0</value> </attribute>
     <!-- the "c" value in the EAR paper, number of blocks per rack after encoding -->
     <attribute> <name>maxInRack</name> <value>1 </value> </attribute>
 </sysSetting>
