@@ -8,6 +8,7 @@ To simply our description, we refer the directory of CSIM-20 as "CSIM directory"
 > ln -s *CSIM-directory*/csim.gpp *project-directory*/csim.gpp
 
 > ln -s *CSIM-directory*/lib/ *project-directory*/lib/
+
 3. In the project directory, configure the system settings in config/sysSetting.xml.
 4. In the project directory, compile by calling "make" and call "./main" to generate the output.  If you want to store the output of program, redirect the output to a target file by calling "./main 2> target file".
 
