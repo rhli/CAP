@@ -3,6 +3,9 @@
 
 using namespace tinyxml2;
 
+/**
+ * Config reads settings from configure file
+ */
 config::config(){
   XMLDocument doc;
   doc.LoadFile("config/sysSetting.xml");

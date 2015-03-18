@@ -33,7 +33,6 @@ class layoutGen{
         randomGen* _randGen;
         graph* _graph;
     public:
-        layoutGen(int blockNum,config* conf);
         layoutGen(config* conf);
         /* conventional placement */
         int randomPla(int*);

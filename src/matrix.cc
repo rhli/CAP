@@ -1,5 +1,10 @@
 #include "matrix.hh"
 
+/**
+ * Compute row rank of matrix, this class help realize graph operations.
+ *
+ * @return row rank
+ */
 int matrix::rowRank(){
     int retVal=0;
     int* workSpace=(int*)calloc(_rowCnt*_columnCnt,sizeof(int));
@@ -49,6 +54,15 @@ int matrix::rowRank(){
     return retVal;
 }
 
+/**
+ * Adding row2 to row1
+ *
+ * @param mat int* matrix to operate on
+ * @param rowCnt int number of rows
+ * @param columnCnt int number of column
+ * @param row1 int row id to be added
+ * @param row2 int row id added to row1
+ */
 int matrix::addRow(int* mat,int rowCnt,int columnCnt,int row1,int row2){
     for(int i=0;i<columnCnt;i++){
         mat[row1*columnCnt+i]^=mat[row2*columnCnt+i];
@@ -56,6 +70,15 @@ int matrix::addRow(int* mat,int rowCnt,int columnCnt,int row1,int row2){
     return 0;
 }
 
+/**
+ * Switching row1 and row2
+ *
+ * @param mat int* matrix to operate on
+ * @param rowCnt int number of rows
+ * @param columnCnt int number of column
+ * @param row1 int 
+ * @param row2 int 
+ */
 int matrix::switchRow(int* mat,int rowCnt,int columnCnt,int row1,int row2){
     if(row1==row2){
         return 0;
@@ -68,6 +91,15 @@ int matrix::switchRow(int* mat,int rowCnt,int columnCnt,int row1,int row2){
     return 0;
 }
 
+/**
+ * Adding col2 to col1
+ *
+ * @param mat int* matrix to operate on
+ * @param rowCnt int number of rows
+ * @param columnCnt int number of column
+ * @param col1 int row id to be added
+ * @param col2 int row id added to row1
+ */
 int matrix::addCol(int* mat,int rowCnt,int columnCnt,int col1,int col2){
     for(int i=0;i<rowCnt;i++){
         mat[i*columnCnt+col1]^=mat[i*columnCnt+col2];
@@ -75,6 +107,15 @@ int matrix::addCol(int* mat,int rowCnt,int columnCnt,int col1,int col2){
     return 0;
 }
 
+/**
+ * Switching col1 and col2
+ *
+ * @param mat int* matrix to operate on
+ * @param rowCnt int number of rows
+ * @param columnCnt int number of column
+ * @param col1 int 
+ * @param col2 int 
+ */
 int matrix::switchCol(int* mat,int rowCnt,int columnCnt,int col1,int col2){
     if(col1==col2){
         return 0;
@@ -87,6 +128,9 @@ int matrix::switchCol(int* mat,int rowCnt,int columnCnt,int col1,int col2){
     return 0;
 }
 
+/**
+ * Print out the matrix
+ */
 int matrix::showMatrix(){
     for(int i=0;i<_rowCnt;i++){
         for(int j=0;j<_columnCnt;j++){
@@ -95,6 +139,7 @@ int matrix::showMatrix(){
         printf("\n");
     }
     printf("\n");
+    return 0;
 }
 
 

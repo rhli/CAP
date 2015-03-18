@@ -73,18 +73,9 @@ class NodeTree{
 
         int showSwitches();
         int getRackNum(){return _rackNum;};
-        //int* getRackList();
-        int* getRackNodeList(int rackID);
         int dataTransfer(int des,int src,double size);
-        int networkTransfer(int des,int src,double size);
         int dataTransferTD(int des,int src,double size);
-        /*
-         * return a two elment array representing the range of hosts
-         * sharing the same elments in some level
-         */
-        int* getNodeList(int nodeID,int level);
         int getMaxLevel(){return _maxLevel;}
-        int* getRackRange(int rackID);
         int setBandwidth(double b){_bandwidth=b;return 0;};
 
         int getNearest(int,int,int*);

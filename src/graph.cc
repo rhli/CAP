@@ -3,6 +3,11 @@
  */
 #include "graph.hh"
 
+/**
+ * The graph implements the flow graph abstraction of EAR
+ *
+ * @param conf config* conf object of graph
+ */
 graph::graph(config* conf){
     _conf=conf;
     _blockNum=_conf->getEcK();
@@ -36,9 +41,10 @@ graph::graph(config* conf){
     graphInit();
 }
 
+/**
+ * Init the graph and residual graph
+ */
 int graph::graphInit(){
-    //printf("_rackNum: %d\n",_rackNum);
-    //printf("_blockNum: %d\n",_blockNum);
     /* Init residual graph, the two backup matrix */
     if(_resGraph==NULL){
         _resGraph=(int*)calloc(_vertexNum*_vertexNum,sizeof(int));
@@ -86,12 +92,17 @@ int graph::graphInit(){
     for(int i=0;i<_rackNum;i++){
         _veGraph[(i+_rackOffset)*_vertexNum+_vertexNum-1]=_maxInRack;
         _resGraph[(i+_rackOffset)*_vertexNum+_vertexNum-1]=_maxInRack;
-        //_veGraph[(i+_rackOffset)*_vertexNum+_vertexNum-1]=1;
-        //_resGraph[(i+_rackOffset)*_vertexNum+_vertexNum-1]=1;
     }
     return 0;
 }
 
+/**
+ * Add set of edges source-block-node-rack-sink
+ *
+ * @param blockID int the index in the stripe
+ * @param nodeID int 
+ * @param rackID int 
+ */
 int graph::addEdge(int blockID,int nodeID,int rackID){
     /* The capacity of every edge is 1 */
     /* check whether the node is already in nodeInd */
@@ -147,6 +158,13 @@ int graph::addEdge(int blockID,int nodeID,int rackID){
     return 0;
 }
 
+/**
+ * Remove set of edges source-block-node-rack-sink, sister function of addEdge()
+ *
+ * @param blockID int the index in the stripe
+ * @param nodeID int 
+ * @param rackID int 
+ */
 int graph::removeEdge(int blockID,int nodeID,int rackID){
     if(blockID>=_blockNum||blockID<0){
         return -1;
@@ -183,6 +201,9 @@ int graph::removeEdge(int blockID,int nodeID,int rackID){
     return 0;
 }
 
+/**
+ * Show adj matrix
+ */
 int graph::showAdjMat(){
     for(int i=0;i<_vertexNum;i++){
         for(int j=0;j<_vertexNum;j++){
@@ -194,6 +215,9 @@ int graph::showAdjMat(){
     return 0;
 }
 
+/**
+ * Show residual matrix
+ */
 int graph::showResMat(){
     for(int i=0;i<_vertexNum;i++){
         for(int j=0;j<_vertexNum;j++){
@@ -205,17 +229,23 @@ int graph::showResMat(){
     return 0;
 }
 
+/**
+ * this function operates on residual graphs, it gets a path from source to sink 
+ */
 int graph::pathSearch(){
-    /* this function operates on residual graphs, it gets a path from source to sink */
     /* We use depth first search */
     memset(_vertexColor,0,_vertexNum*sizeof(int));
     _pathLen=-1;
     return dfs(0);
 }
 
+/**
+ * depth-first search for a path
+ * @param vID int destination node
+ * @return value 0 means there is no path to sink and 1 means yes 
+ */
 int graph::dfs(int vID){
     //printf("graph::dfs(%d)\n",vID);
-    /* return value 0 means there is no path to sink and 1 means yes */
     int retVal=0;
     _pathLen++;
     _vertexColor[vID]=1;
@@ -240,10 +270,12 @@ int graph::dfs(int vID){
     }
     _vertexColor[vID]=2;
     _pathLen--;
-    //printf("graph::dfs() returns %d\n",retVal);
     return retVal;
 }
 
+/**
+ * Compute maxFlow of the graph
+ */
 int graph::maxFlow(){
     int retVal=0;
     memcpy((char*)_resGraph,(char*)_veGraph,_vertexNum*_vertexNum*sizeof(int));
@@ -271,14 +303,16 @@ int graph::maxFlow(){
             edgeCount++;
         }
         retVal+=minCap;
-        //free(_path);
+        free(_path);
         _path=NULL;
         //break;
-        //showResMat();
     }
     return retVal;
 }
 
+/**
+ * Compute incremental maxFlow of the graph
+ */
 int graph::incrementalMaxFlow(){
     int retVal=0;
     while(pathSearch()!=0){
@@ -305,7 +339,7 @@ int graph::incrementalMaxFlow(){
             edgeCount++;
         }
         retVal+=minCap;
-        //free(_path);
+        free(_path);
         _path=NULL;
         //break;
         //showResMat();
@@ -314,6 +348,9 @@ int graph::incrementalMaxFlow(){
     return retVal;
 }
 
+/**
+ * back up the graph
+ */
 int graph::backGraph(){
     memcpy((char*)_backVeGraph,(char*)_veGraph,_vertexNum*_vertexNum*sizeof(int));
     memcpy((char*)_backResGraph,(char*)_resGraph,_vertexNum*_vertexNum*sizeof(int));
@@ -321,6 +358,9 @@ int graph::backGraph(){
     return 0;
 }
 
+/**
+ * restore the graph
+ */
 int graph::restoreGraph(){
     memcpy((char*)_veGraph,(char*)_backVeGraph,_vertexNum*_vertexNum*sizeof(int));
     memcpy((char*)_resGraph,(char*)_backResGraph,_vertexNum*_vertexNum*sizeof(int));
@@ -328,6 +368,11 @@ int graph::restoreGraph(){
     return 0;
 }
 
+/**
+ * get max matching of the blocks and nodes
+ *
+ * @param retVal int* list of edges
+ */
 int graph::getMaxMatch(int* retVal){
     /* In this function, we get the max matching from the residual graph */
     for(int i=0;i<_conf->getEcN();i++){
@@ -359,7 +404,9 @@ int graph::getMaxMatch(int* retVal){
     return 0;
 }
 
-/* This function removes a vertex representing a node(slave) */
+/** 
+ * Remove a vertex representing a node(slave) 
+ */
 int graph::removeVertex(int vid){
     int vertexInd=-1;
     for(int i=0;i<_nodeNum;i++){
@@ -382,7 +429,11 @@ int graph::removeVertex(int vid){
     return 0;
 }
 
-/* Initiate a graph with a given placement */
+/**
+ * Initiate a graph with a given placement 
+ *
+ * @param pla int* placement
+ */
 int graph::initFromPla(int* pla){
   this->graphInit();
     for(int i=0;i<_blockNum;i++){

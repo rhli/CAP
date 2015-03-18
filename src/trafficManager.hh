@@ -3,14 +3,11 @@
 
 #include <cstring>
 #include "config.hh"
-#include "stripeManager.hh"
 #include "NodeTree.hh"
-#include "stripe.hh"
 #include "randomGen.hh"
 #include "layoutGen.hh"
 
 class trafficManager{
-        stripeManager* _strM;
         NodeTree* _nodeTree;
         config* _conf;
         randomGen* _randGen;
@@ -49,7 +46,7 @@ class trafficManager{
         void write();
         void stripe(int);
         void stripeMap(int,int,event*);
-        void bgTraffic();
+        //void bgTraffic();
 
         void writeOp(int*);
         void inClusWriteOp(int*);
@@ -59,8 +56,6 @@ class trafficManager{
         void pipeline(double,int*,event*);
     public:
         trafficManager(config*);
-        /* Just for testing purpose on whether NodeTree is performing well */
-        void test();
 };
 
 #endif
