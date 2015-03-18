@@ -1,0 +1,29 @@
+<sysSetting>
+    <!-- nodes per rack and number of racks -->
+    <attribute> <name>nodePerRack</name> <value>20</value> </attribute>
+    <attribute> <name>rackNum</name> <value>20</value> </attribute>
+    <!-- Parameters of n,k in erasure coding -->
+    <attribute> <name>ecN</name> <value>14</value> </attribute>
+    <attribute> <name>ecK</name> <value>10</value> </attribute>
+    <!-- number of replicas -->
+    <attribute> <name>replicaNum</name> <value>3</value> </attribute> 
+    <!-- placement policy 
+         0 for conventinal
+         1 for EAR-->
+    <attribute> <name>repPlaPolicy</name> <value>1</value> </attribute>
+    <!-- block size in terms of MB -->
+    <attribute> <name>blockSize</name> <value>64</value> </attribute>
+    <!-- bandwidth -->
+    <attribute> <name>bandwidth</name> <value>125</value> </attribute>
+    <!-- interval of write request in terms of seconds -->
+    <attribute> <name>writeInterval</name> <value>1 </value> </attribute>
+    <!-- proportion of write request issued inside cluster -->
+    <attribute> <name>inClusWriteProportion</name> <value>1 </value> </attribute>
+    <!-- number of stripes to be encoded -->
+    <attribute> <name>encodingStripeCount</name> <value>1000</value> </attribute>
+    <!-- random seed -->
+    <attribute> <name>randSeed</name> <value>10000</value> </attribute>
+    <!-- the "c" value in the EAR paper, number of blocks per rack after encoding -->
+    <attribute> <name>maxInRack</name> <value>1 </value> </attribute>
+</sysSetting>
+
