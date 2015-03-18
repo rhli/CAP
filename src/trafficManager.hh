@@ -37,6 +37,12 @@ class trafficManager{
         int _completedBgIntraCounter;
         double _wholeBgIntraThpt;
 
+        /* operational overheads */
+        double _writeOverhead;
+        double _stripeOverhead;
+        double _stripeSwitchingOverhead;
+        stream* _stream;
+
         /*
          * We have three data streams here (Not sure whether the word stream is precise here..)
          * 1. A write stream follow some distribution

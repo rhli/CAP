@@ -16,6 +16,8 @@ trafficManager::trafficManager(config* c){
   _nodeTree=new NodeTree(c->getNodeNum(),c->getNodePerRack());
   _nodeTree->setBandwidth(_bandwidth);
   _randGen=new randomGen(_conf->_randSeed);
+  _stream = new stream();
+  _stream->reseed(54321);
 
   _completedWriteCounter=0;
   _completedStripeCounter=0;
@@ -26,12 +28,15 @@ trafficManager::trafficManager(config* c){
   _wholeBgInterThpt=0;
   _wholeBgIntraThpt=0;
 
+  _writeOverhead=0.33;
+  _stripeOverhead=4;
+  _stripeSwitchingOverhead=3.5;
+
   create("traM");
 
   write();
   hold(30);
   stripe(_conf->_encodingStripeCount);
-  hold(270);
 }
 
 /**
@@ -120,7 +125,7 @@ void trafficManager::inClusWriteOp(int* loc){
     packetSize=32;
   }
   // checksum operations and other overheads.
-  hold(0.33);
+  hold(_writeOverhead);
   event** doneEvent=(event**)calloc(_blockSize/packetSize,sizeof(event*));
   for(int i=0;i<_blockSize/packetSize;i++){
     doneEvent[i]=new event("doneFlag");
@@ -248,16 +253,15 @@ void trafficManager::stripeMap(int id,int size,event* eve){
       }
     }
     /* hold some time for computation */
-    hold(4);
+    hold(_stripeOverhead);
     int* ecLoc=(int*)calloc(_ecN,sizeof(int));
     lGen->getParityLoc(repLocs,ecLoc,coreRack);
     for(int j=_ecK;j<_ecN;j++){
       _nodeTree->dataTransferTD(ecLoc[j],id,_blockSize);
     }
-    
     fprintf(stdout,"stripeOp: begins %lf ends %lf\n",startTime,simtime());
-    /* hold some time for other overhead */
-    hold(3.5);
+    /* hold some time for switching stripes */
+    hold(_stripeSwitchingOverhead);
   }
   eve->set();
   free(repLocs);

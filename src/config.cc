@@ -29,7 +29,7 @@ config::config(){
     }else if(strcmp(ele->GetText(),"blockSize")==0){
       _blockSize=atoi(ele->NextSiblingElement("value")->GetText());
     }else if(strcmp(ele->GetText(),"bandwidth")==0){
-      _bandwidth=atof(ele->NextSiblingElement("value")->GetText())*90/125;
+      _bandwidth=atof(ele->NextSiblingElement("value")->GetText())*72/125;
     }else if(strcmp(ele->GetText(),"writeInterval")==0){
       _writeInterval=atof(ele->NextSiblingElement("value")->GetText());
     }else if(strcmp(ele->GetText(),"inClusWriteProportion")==0){
