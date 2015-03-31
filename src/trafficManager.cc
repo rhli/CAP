@@ -216,7 +216,6 @@ void trafficManager::stripe(int stripeCount){
  */
 void trafficManager::stripeMap(int id,int size,event* eve){
   create("stripeMap");
-  fprintf(stdout,"stripeMap starts!\n");
   double startTime;
   int coreRack=id/_conf->getNodePerRack();
   layoutGen* lGen = new layoutGen(_conf);
@@ -277,7 +276,7 @@ void trafficManager::stripeMap(int id,int size,event* eve){
  */
 void trafficManager::stripeOp(int* repLoc,int* ecLoc,int opNode){
   create("stripeOp");
-  double startTime=simtime();
+  //double startTime=simtime();
   _stripeCounter++;
   /* do download */
   for(int i=0;i<_ecK;i++){

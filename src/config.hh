@@ -28,6 +28,8 @@ class config{
         int _encodingStripeCount;
         int _maxInRack;
 
+        int _runTime;
+
         config();
         int getRackNum(){return _rackNum;};
         int getNodePerRack(){return _nodePerRack;};

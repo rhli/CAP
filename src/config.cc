@@ -44,6 +44,8 @@ config::config(){
       _randSeed=atof(ele->NextSiblingElement("value")->GetText());
     }else if(strcmp(ele->GetText(),"maxInRack")==0){
       _maxInRack=atof(ele->NextSiblingElement("value")->GetText());
+    }else if(strcmp(ele->GetText(),"runTime")==0){
+      _runTime=atoi(ele->NextSiblingElement("value")->GetText());
     }
   }
   _nodeNum=_rackNum*_nodePerRack;

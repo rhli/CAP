@@ -13,7 +13,7 @@
     <attribute> <name>repPlaPolicy</name> <value>1</value> </attribute>
     <!-- block size in terms of MB -->
     <attribute> <name>blockSize</name> <value>64</value> </attribute>
-    <!-- bandwidth -->
+    <!-- bandwidth in terms of MBps -->
     <attribute> <name>bandwidth</name> <value>125</value> </attribute>
     <!-- interval of write request in terms of seconds -->
     <attribute> <name>writeInterval</name> <value>1 </value> </attribute>
@@ -25,5 +25,7 @@
     <attribute> <name>randSeed</name> <value>0</value> </attribute>
     <!-- the "c" value in the EAR paper, number of blocks per rack after encoding -->
     <attribute> <name>maxInRack</name> <value>1 </value> </attribute>
+    <!-- runtime in seconds, encoding operation starts at 30 seconds -->
+    <attribute> <name>runTime</name> <value>1200 </value> </attribute>
 </sysSetting>
 

@@ -64,7 +64,7 @@ class graph{
 
         /* Information of the system */
         int _blockNum;/* k in erasure coding */
-        int _replicaNum;
+        int _repFac;
         int _nodeNum;/* replica number times k */
         int _rackNum;
         int _maxInRack;/* the value of (n-k) */

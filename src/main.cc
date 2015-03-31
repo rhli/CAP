@@ -20,6 +20,6 @@ extern "C" void sim(int argc,char** argv){
     max_processes(10000000);
     max_events(10000000);
     trafficManager* traM=new trafficManager(conf);
-    hold(3600);
+    hold(conf->_runTime);
 }
 

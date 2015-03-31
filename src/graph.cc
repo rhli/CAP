@@ -13,11 +13,11 @@ graph::graph(config* conf){
     _blockNum=_conf->getEcK();
     //_maxInRack=_conf->getEcN()-_blockNum;
     _maxInRack=_conf->_maxInRack;
-    _replicaNum=_conf->getReplicaNum();
-    _nodeNum=_conf->getNodeNum()<_replicaNum*_blockNum?
-        _conf->getNodeNum():_replicaNum*_blockNum;
-    _rackNum=_conf->getRackNum()<_replicaNum*_blockNum?
-        _conf->getRackNum():_replicaNum*_blockNum;
+    _repFac=_conf->getReplicaNum();
+    _nodeNum=_conf->getNodeNum()<_repFac*_blockNum?
+        _conf->getNodeNum():_repFac*_blockNum;
+    _rackNum=_conf->getRackNum()<_repFac*_blockNum?
+        _conf->getRackNum():_repFac*_blockNum;
     _vertexNum=2+_rackNum+_nodeNum+_blockNum;
     _blockOffset=1;
     _nodeOffset=1+_blockNum;
@@ -437,8 +437,8 @@ int graph::removeVertex(int vid){
 int graph::initFromPla(int* pla){
   this->graphInit();
     for(int i=0;i<_blockNum;i++){
-        for(int j=1;j<_replicaNum;j++){
-            this->addEdge(i,pla[i*_replicaNum+j],pla[i*_replicaNum+j]/_conf->getNodePerRack());
+        for(int j=1;j<_repFac;j++){
+            this->addEdge(i,pla[i*_repFac+j],pla[i*_repFac+j]/_conf->getNodePerRack());
         }
     }
     if(this->maxFlow()==_blockNum){
@@ -446,11 +446,11 @@ int graph::initFromPla(int* pla){
     }else{
       this->graphInit();
       for(int i=0;i<_blockNum;i++){
-        for(int j=1;j<_replicaNum;j++){
-          this->addEdge(i,pla[i*_replicaNum+j],pla[i*_replicaNum+j]/_conf->getNodePerRack());
+        for(int j=1;j<_repFac;j++){
+          this->addEdge(i,pla[i*_repFac+j],pla[i*_repFac+j]/_conf->getNodePerRack());
         }
         for(int k=0;k<i;k++){
-          this->addEdge(k,pla[i*_replicaNum],pla[i*_replicaNum]/_conf->getNodePerRack());
+          this->addEdge(k,pla[i*_repFac],pla[i*_repFac]/_conf->getNodePerRack());
         }
         if(this->maxFlow()==_blockNum){
           return 0;
