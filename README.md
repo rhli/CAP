@@ -42,6 +42,10 @@ Below are the major components of the simulator.
  * `layoutGen`:       generated replicated block layouts with either EAR or conventional placement.
  * `graph`:           implementation of the flow graph algorithm in EAR.
 
+You can go to src/ and find the source files of each component.
+
+There is a doxygen-generated documentation in the directory html/.
+
       ---------------------------------------------
       |                trafficManager             |
       ---------------------------------------------
@@ -49,8 +53,4 @@ Below are the major components of the simulator.
       |        NodeTree      |         -----------|
       |                      |         |  graph   |
       ---------------------------------------------
-
-You can go to src/ and find the source files of each component.
-
-There is a doxygen-generated documentation in the directory html/.
 
