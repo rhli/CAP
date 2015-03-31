@@ -18,9 +18,10 @@ Output Interpretation
 ---
 The output can be interpreted line by line, each line contains information of one operation.  
 The format is:
-> [operation code]: begins [starting time] ends [ending time]
+> [operation code]: begins [starting time] ends [ending time]  
+
 For example, 
-> stripeOp: begins 1175.538349 ends 1193.102391
+> stripeOp: begins 1175.538349 ends 1193.102391  
 indicates that one striping operation starts at 1175.5s and ends at 1193.1s.
 
 There are three types of operations:
