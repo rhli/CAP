@@ -22,6 +22,7 @@ The format is:
 
 For example, 
 > stripeOp: begins 1175.538349 ends 1193.102391  
+
 indicates that one striping operation starts at 1175.5s and ends at 1193.1s.
 
 There are three types of operations:
@@ -41,10 +42,6 @@ Below are the major components of the simulator.
  * `layoutGen`:       generated replicated block layouts with either EAR or conventional placement.
  * `graph`:           implementation of the flow graph algorithm in EAR.
 
-You can go to src/ and find the source files of each component.
-
-There is a doxygen-generated documentation in the directory html/.
-
       ---------------------------------------------
       |                trafficManager             |
       ---------------------------------------------
@@ -52,4 +49,8 @@ There is a doxygen-generated documentation in the directory html/.
       |        NodeTree      |         -----------|
       |                      |         |  graph   |
       ---------------------------------------------
+
+You can go to src/ and find the source files of each component.
+
+There is a doxygen-generated documentation in the directory html/.
 
