@@ -1,10 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
-#include "graph.hh"
 #include "config.hh"
-#include "randomGen.hh"
-#include "layoutGen.hh"
-#include "trafficManager.hh"
+#include "TrafficManager.hh"
 #include "cpp.h"
 
 #define FAIL_IND 2
@@ -19,7 +16,7 @@ extern "C" void sim(int argc,char** argv){
     max_facilities(10000);
     max_processes(10000000);
     max_events(10000000);
-    trafficManager* traM=new trafficManager(conf);
+    TrafficManager* traM=new TrafficManager(conf);
     hold(conf->_runTime);
 }
 
