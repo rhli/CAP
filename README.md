@@ -21,7 +21,7 @@ directory".
 
 4. In the project directory, compile by "make" and call "./main" to generate
    the output.  If you want to store the output of program, redirect the output
-   to a target file by calling "./main 2> target file".
+   to a target file by calling "./main > [target file]".
 
 Explanation of Output
 ---
